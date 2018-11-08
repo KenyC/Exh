@@ -28,6 +28,15 @@ class Formula:
 	def __repr__(self):
 		return self.display()
 
+	def __eq__(self, other):
+		if self.type == other.type:
+			if self.type == "var" or self.type == "neg":
+				return self.children[0] == other.children[0]
+			elif self.type == "or" or self.type == "and":
+				return (self.children[0] == other.children[0] and self.children[1] == other.children[1]) or (self.children[0] == other.children[1] and self.children[1] == other.children[0])
+			elif self.type == "neg":
+				return self.children[0] == self.children[0]
+
 	def evaluate(self, assignment):
 
 		if self.type == "var":

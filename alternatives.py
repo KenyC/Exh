@@ -1,6 +1,8 @@
 import numpy as np
 from worlds import Universe
-from utils import entails
+from formula import Formula
+from utils import entails, remove_doubles
+from itertools import product
 
 class Alternatives():
 
@@ -15,6 +17,7 @@ class Alternatives():
 
 	def find_maximal_sets(universe, props):
 		truthTable = universe.evaluate(*props)
+		print(truthTable)
 		maximalSets = []
 
 		for s in truthTable:
@@ -33,6 +36,27 @@ class Alternatives():
 				maximalSets.append(s)
 		
 		return np.array(maximalSets, dtype = "bool")
+
+
+	def alt_aux(p, scales = [], subst = False):
+
+		if p.type == "var":
+			return [p]
+
+		relScale = set(t for s in scales if p.type in s for t in s)
+		relScale.add(p.type)
+
+		childrenAlternative = [Alternatives.alt_aux(child, scales, subst) for child in p.children]
+		toReturn = [Formula(s,*bigProd) for s in relScale for bigProd in product(*childrenAlternative)]
+
+		return toReturn + ([alt for child in childrenAlternative for alt in child] if subst else [])
+
+	def alt(p, scales, subst):
+		return remove_doubles(Alternatives.alt_aux(p, scales, subst))
+
+
+
+
 
 	
 
