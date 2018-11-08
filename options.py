@@ -1,2 +1,3 @@
-scales = [set("or", "and")]
+scales = [{"or", "and"}]
+ii_on = True
 sub = True
