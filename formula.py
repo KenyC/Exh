@@ -19,6 +19,8 @@ class Formula:
 			return "A{}".format(self.children[0])
 		elif self.type == "not":
 			return "not[{}]".format(self.children[0].display())
+		elif self.type == "exh":
+			return "exhp[{}]".format(self.children[0].display())
 		else:
 			return "{a} {type} [{b}]".format(type = self.type, a = self.children[0].display(), b = self.children[1].display())
 

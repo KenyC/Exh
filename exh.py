@@ -1,5 +1,5 @@
 import numpy as np
-from alternatives import Alternatives
+import alternatives
 from worlds import Universe
 from formula import Formula
 import options
@@ -9,7 +9,7 @@ class Exhaust:
 	def __init__(self, prejacent, alts = None, scales = options.scales, subst = options.sub):
 		self.p = prejacent
 		if alts is None:
-			self.alts = Alternatives.alt(prejacent, scales = scales, subst = subst)
+			self.alts = alternatives.Alternatives.alt(prejacent, scales = scales, subst = subst)
 		else:
 			self.alts = alts
 
@@ -23,14 +23,19 @@ class Exhaust:
 		worldsPrejacent = self.p.evaluate(self.u.worlds)
 		uPrejacent = self.u.restrict(worldsPrejacent)
 
-		maximalSets = Alternatives.find_maximal_sets(uPrejacent, evalSet)
+		maximalSets = alternatives.Alternatives.find_maximal_sets(uPrejacent, evalSet)
+		self.maximalExclSets = [[evalSet[i].children[0] for i,b in enumerate(setE) if b] for setE in maximalSets]
 
 		self.innocently_excl_indices = np.prod(maximalSets, axis = 0, dtype = "bool")
 		self.innocently_excl = [f for i,f in enumerate(self.alts) if self.innocently_excl_indices[i] == True]
 
+		self.excl = True
 		return self.innocently_excl
 
 	def innocently_includable(self):
+
+		if not self.excl:
+			raise ValueError("Exclusion has not been applied yet.")
 
 		evalNegSet = [~f for f in self.innocently_excl] + [self.p]
 		evalPosSet = [f for i,f in enumerate(self.alts) if self.innocently_excl_indices[i] == False]
@@ -38,13 +43,23 @@ class Exhaust:
 		worldsStengthenedPrejacent = np.prod(self.u.evaluate(*evalNegSet), axis = 1,dtype = "bool")
 		uSPrejacent = self.u.restrict(worldsStengthenedPrejacent)
 		
-		maximalSets = Alternatives.find_maximal_sets(uSPrejacent, evalPosSet)
+		maximalSets = alternatives.Alternatives.find_maximal_sets(uSPrejacent, evalPosSet)
+		self.maximalInclSets = [[evalPosSet[i] for i,b in enumerate(setE) if b] for setE in maximalSets]
 	
 		self.innocently_incl_indices = np.prod(maximalSets, axis = 0)
 		self.innocently_incl = [f for i,f in enumerate(evalPosSet) if self.innocently_incl_indices[i] == True]
 
+		self.incl = True
 		return self.innocently_incl
 
+	def diagnose(self):
+		if self.excl:
+			print("Maximal Sets (excl)", self.maximalExclSets)
+			print("Innocently excludable", self.innocently_excl)
+
+		if self.incl:
+			print("Maximal Sets (incl)", self.maximalInclSets)
+			print("Innocently includable", self.innocently_incl)
 
 class Exh(Formula):
 	
@@ -70,6 +85,13 @@ class Exh(Formula):
 		uEval = Universe(len(assignment), assignment)
 
 		return np.prod(uEval.evaluate(self.children[0], *self.evalSet), axis = 1, dtype = "bool")
+
+	def get_alts(self):
+		return self.e.alts
+
+	alts = property(get_alts)
+
+
 
 
 
