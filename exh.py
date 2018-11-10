@@ -13,8 +13,8 @@ class Exhaust:
 		else:
 			self.alts = alts
 
-		self.n = max(v for f in self.alts for v in f.vars())
-		self.u = Universe(self.n + 1)
+		self.n = max(v for f in self.alts for v in f.vars()) + 1
+		self.u = Universe(self.n)
 
 	def innocently_excludable(self):
 
@@ -88,6 +88,9 @@ class Exh(Formula):
 
 	def get_alts(self):
 		return self.e.alts
+
+	def eq(self, other):
+		return (other.type == "exh") and (self.children[0] == other.children[0])
 
 	alts = property(get_alts)
 
