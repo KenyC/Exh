@@ -24,7 +24,7 @@ class E(Formula):
 		return np.amax(np.transpose(np.stack(np.split(self.children[0].evaluate(subContextEval), self.sizeDomain))), axis = 1)
 
 
-def U(Formula):
+class U(Formula):
 
 	def __init__(self, child, sizeDomain = options.qDomain):
 		self.sizeDomain = sizeDomain

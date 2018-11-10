@@ -1,12 +1,17 @@
 import numpy as np
 from worlds import Universe
 from formula import Formula
+from quantifiers import E, U
 import exh
 from utils import entails, remove_doubles
 from itertools import product
 
 
-d = {"and": lambda l: Formula("and", *l), "or": lambda l: Formula("or", *l), "not": lambda l: Formula("not", *l),"exh": lambda l: exh.Exh(l[0])}
+d = {"and": lambda l: Formula("and", *l), "or": lambda l: Formula("or", *l),
+ "not": lambda l: Formula("not", *l),"exh": lambda l: exh.Exh(l[0]),
+ "some": lambda l: E(l[0]), "all": lambda l: U(l[0])}
+
+nonSubst = {"some","all"}
 
 class Alternatives():
 
@@ -52,7 +57,7 @@ class Alternatives():
 		childrenAlternative = [Alternatives.alt_aux(child, scales, subst) for child in p.children]
 		toReturn = [d[s](bigProd) for s in relScale for bigProd in product(*childrenAlternative)]
 
-		return toReturn + ([alt for child in childrenAlternative for alt in child] if subst else [])
+		return toReturn + ([alt for child in childrenAlternative for alt in child] if subst or p.type in nonSubst else [])
 
 	def alt(p, scales, subst):
 		return remove_doubles(Alternatives.alt_aux(p, scales, subst))

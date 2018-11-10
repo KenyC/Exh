@@ -22,7 +22,11 @@ class Formula:
 		elif self.type == "exh":
 			return "exhp[{}]".format(self.children[0].display())
 		else:
-			return "{a} {type} [{b}]".format(type = self.type, a = self.children[0].display(), b = self.children[1].display())
+			return "{a} {type} {b}".format(type = self.type, a = self.parenthesis(self.children[0]).format(self.children[0].display()),
+															 b = self.parenthesis(self.children[1]).format(self.children[1].display()),)
+
+	def parenthesis(self, child):
+		return "{}" if self.type == child.type or (len(child.children) <= 1) else "[{}]"
 
 	def __str__(self):
 		return self.display()
