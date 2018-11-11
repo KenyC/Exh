@@ -1,12 +1,13 @@
 # Exh
 
-You can find a Jupyter notebook tutorial in the main folder on how to use the library
+You can find a Jupyter notebook tutorial in the main folder to get a head-start for using the library.
 
 ## Features 
 
   - Innocent inclusion, innocent exclusion of propositional formulas
   - Computing maximal consistent sets of formulas
   - Recursively exhaustified formulas
+  - Quantifiers (experimental)
   
 ## Caveats
  
