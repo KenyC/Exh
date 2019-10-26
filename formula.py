@@ -1,4 +1,8 @@
 import numpy as np
+from vars import VarManager
+from collections import defaultdict
+import options
+
 class Formula:
 
 	def __init__(self, typeF, *child):
@@ -15,9 +19,7 @@ class Formula:
 		return Formula("not", self)
 
 	def display(self):
-		if self.type == "var":
-			return "A{}".format(self.children[0])
-		elif self.type == "not":
+		if self.type == "not":
 			return "not[{}]".format(self.children[0].display())
 		elif self.type == "exh":
 			return "exhp[{}]".format(self.children[0].display())
@@ -50,15 +52,58 @@ class Formula:
 		elif self.type == "not":
 			return np.logical_not(self.children[0].evaluate(assignment))
 
+	def evaluate_aux(self, assignment, variables = None, vm = None):
+
+		if vm is None:
+			vm = self.vm
+
+		if variables is None:
+			variables = defaultdict(int)
+
+		if self.type == "and":
+			return np.logical_and(self.children[0].evaluate_aux(assignment, variables, vm),
+								  self.children[1].evaluate_aux(assignment, variables, vm))
+		elif self.type == "or":
+			return np.logical_or(self.children[0].evaluate_aux(assignment, variables, vm),
+								  self.children[1].evaluate_aux(assignment, variables, vm))
+		elif self.type == "not":
+			return np.logical_not(self.children[0].evaluate_aux(assignment, variables, vm))
+
+
 	def vars(self):
+		self.vm = VarManager.merge(*[c.vars() for c in self.children])
+		return self.vm
 
-		if self.type == "var":
-			return self.children
+
+
+# def Var(number):
+# 	return Formula("var", number)
+
+
+class Var(Formula):
+
+	def __init__(self, number, name = None):
+		super(Var, self).__init__("var", number)
+		self.name = name
+
+	def display():
+		if self.name is None:
+			return "A{}".format(self.children[0])
 		else:
-			return [x for c in self.children for x in c.vars()]
+			return self.name
 
-def Var(number):
-	return Formula("var", number)
+	def evaluate_aux(self, assignment, variables, vm):
+		idx = self.children[0]
+		deps = vm.preds[idx]
+		return assignment[:, idx + sum(variables[dep] * (options.dom_quant ** i)   for i, dep in enumerate(deps))]
+
+	def vars(self):
+		self.vm = VarManager()
+		return self.vm
+
+		
+
+
 
 
 a = Var(0)
