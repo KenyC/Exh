@@ -1,6 +1,7 @@
 import numpy as np
 import alternatives
 from worlds import Universe
+from vars import VarManager
 from formula import Formula
 import options
 
@@ -13,21 +14,28 @@ class Exhaust:
 		else:
 			self.alts = alts
 
-		self.n = max(v for f in self.alts for v in f.vars())
-		self.u = Universe(self.n + 1)
+		self.incl = False
+		self.excl = False
+
+		self.vm = VarManager.merge(prejacent.vm, *[alt.vm for alt in alts])
+		self.u = Universe(vm = self.vm)
 
 	def innocently_excludable(self):
 
 		evalSet = [~f for f in self.alts]
 
-		worldsPrejacent = self.p.evaluate(self.u.worlds)
+		worldsPrejacent = self.u.evaluate(self.p).reshape(2 ** self.u.n)
 		uPrejacent = self.u.restrict(worldsPrejacent)
 
-		maximalSets = alternatives.Alternatives.find_maximal_sets(uPrejacent, evalSet)
-		self.maximalExclSets = [[evalSet[i].children[0] for i,b in enumerate(setE) if b] for setE in maximalSets]
+		if evalSet:
+			maximalSets = alternatives.Alternatives.find_maximal_sets(uPrejacent, evalSet)
+			self.maximalExclSets = [[evalSet[i].children[0] for i,b in enumerate(setE) if b] for setE in maximalSets]
 
-		self.innocently_excl_indices = np.prod(maximalSets, axis = 0, dtype = "bool")
-		self.innocently_excl = [f for i,f in enumerate(self.alts) if self.innocently_excl_indices[i] == True]
+			self.innocently_excl_indices = np.prod(maximalSets, axis = 0, dtype = "bool")
+			self.innocently_excl = [f for i,f in enumerate(self.alts) if self.innocently_excl_indices[i] == True]
+		else:
+			self.maximalExclSets = []
+			self.innocently_excl = []
 
 		self.excl = True
 		return self.innocently_excl
@@ -43,11 +51,15 @@ class Exhaust:
 		worldsStengthenedPrejacent = np.prod(self.u.evaluate(*evalNegSet), axis = 1,dtype = "bool")
 		uSPrejacent = self.u.restrict(worldsStengthenedPrejacent)
 		
-		maximalSets = alternatives.Alternatives.find_maximal_sets(uSPrejacent, evalPosSet)
-		self.maximalInclSets = [[evalPosSet[i] for i,b in enumerate(setE) if b] for setE in maximalSets]
-	
-		self.innocently_incl_indices = np.prod(maximalSets, axis = 0)
-		self.innocently_incl = [f for i,f in enumerate(evalPosSet) if self.innocently_incl_indices[i] == True]
+		if evalPosSet:
+			maximalSets = alternatives.Alternatives.find_maximal_sets(uSPrejacent, evalPosSet)
+			self.maximalInclSets = [[evalPosSet[i] for i,b in enumerate(setE) if b] for setE in maximalSets]
+		
+			self.innocently_incl_indices = np.prod(maximalSets, axis = 0)
+			self.innocently_incl = [f for i,f in enumerate(evalPosSet) if self.innocently_incl_indices[i] == True]
+		else:
+			self.maximalInclSets = []
+			self.innocently_incl = []
 
 		self.incl = True
 		return self.innocently_incl
