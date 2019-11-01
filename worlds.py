@@ -1,9 +1,10 @@
 import numpy as np
 import itertools
 
-from options import *
+import options
 from assignment import getAssignment
 from vars import VarManager
+from table import Table
 # from formula import Var
 
 
@@ -77,3 +78,47 @@ class Universe:
 		self.vm = VarManager.merge(self.vm, var.vm)
 		self.n = self.vm.n
 		self.worlds = getAssignment(n)
+
+	def truth_table(self, *fs):
+		output = self.evaluate(*fs)
+
+		table = Table()
+		nvars = self.worlds.shape[1]
+		nworlds = self.worlds.shape[0]
+
+		# We find the names for the columns
+		name_cols = [i for i in range(nvars)] + [str(f) for f in fs]
+		name_vars = ["A{}".format(key) for key in self.vm.preds.keys()]
+		for name, var_idx in self.vm.names.items():
+			vm_index = self.vm.var_to_vm_index[var_idx]
+			name_vars[vm_index] = name
+
+		for i, offset in enumerate(self.vm.offset):
+			if self.vm.preds[i]:
+			
+				ndeps = len(self.vm.preds[i])
+			
+				for t in itertools.product(range(options.dom_quant), repeat = ndeps):
+					i_col = offset + sum(val * options.dom_quant ** i for i, val in enumerate(t))
+					print(i_col)
+					name_cols[i_col] = name_vars[i] + str(t)
+
+			else:
+				name_cols[offset] = name_vars[i]
+
+
+		table.set_header(name_cols)
+
+		# self.worlds: nworlds x nvars
+		# output : nworlds x nfs
+		combined = np.concatenate([self.worlds, output], axis = 1)
+
+		for row in combined:
+			table.add_row(row)
+
+		table.set_strong_col(nvars)
+		table.print()	
+
+
+
+

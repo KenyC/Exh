@@ -5,6 +5,8 @@ class VarManager:
 	def __init__(self, preds, names = dict()):
 		self.preds = preds
 		self.names = names
+
+		self.var_to_vm_index = {var_idx: vm_idx for vm_idx, var_idx in enumerate(self.preds.keys())}
 		self.linearize()
 
 	def linearize(self):
