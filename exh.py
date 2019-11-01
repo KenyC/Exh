@@ -65,13 +65,27 @@ class Exhaust:
 		return self.innocently_incl
 
 	def diagnose(self):
+
+		def colon_sep_fs(fs):
+			str_fs = [str(f) for f in fs]
+			return "; ".join(str_fs) 
+
 		if self.excl:
-			print("Maximal Sets (excl)", self.maximalExclSets)
-			print("Innocently excludable", self.innocently_excl)
+			print("Maximal Sets (excl)")
+			for excl in self.maximalExclSets:
+				print(excl)
+			print()
+			print("Innocently excludable", colon_sep_fs(self.innocently_excl))
 
 		if self.incl:
-			print("Maximal Sets (incl)", self.maximalInclSets)
-			print("Innocently includable", self.innocently_incl)
+			print()
+			print()
+			print("Maximal Sets (incl)")
+			for incl in self.maximalInclSets:
+				print(incl)
+			print()
+			print("Innocently includable", colon_sep_fs(self.innocently_incl))
+		print()
 
 class Exh(Formula):
 	
@@ -93,13 +107,22 @@ class Exh(Formula):
 	def display(self):
 		return "exh[{}]".format(self.children[0].display())
 
-	def evaluate(self, assignment):
-		uEval = Universe(len(assignment), assignment)
+	def evaluate_aux(self, assignment, vm, variables = dict()):
 
-		return np.prod(uEval.evaluate(self.children[0], *self.evalSet), axis = 1, dtype = "bool")
+		evaluanda = [self.children[0]] + self.evalSet
+		values = [f.evaluate_aux(assignment, vm, variables) for f in evaluanda]
+	
+		return np.min(np.stack(values), axis = 0)
 
 	def get_alts(self):
 		return self.e.alts
+
+	def vars(self):
+		self.vm = VarManager.merge(self.children[0].vm, *[alt.vm for alt in self.alts])
+		return self.vm
+
+	def diagnose(self):
+		self.e.diagnose()
 
 	alts = property(get_alts)
 

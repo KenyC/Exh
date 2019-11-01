@@ -10,11 +10,8 @@ class Quantifier(Formula):
 	def display(self):
 		return "{symb}{var}, {scope}".format(symb = self.symbol, var = self.qvar, scope = self.children[0].display()) 
 
-	def evaluate_aux(self, assignment, variables = dict(), vm = None):
-		if vm is None:
-			vm = self.vars()
-
-		return self.fun(np.stack([self.children[0].evaluate_aux(assignment, dict(variables, **{self.qvar: i}), vm) for i in range(options.dom_quant)], axis = 0))
+	def evaluate_aux(self, assignment, vm, variables = dict()):
+		return self.fun(np.stack([self.children[0].evaluate_aux(assignment, vm, dict(variables, **{self.qvar: i})) for i in range(options.dom_quant)], axis = 0))
 
 	def fun(self, results):
 		raise Exception("Evaluation of abstract class Quantifier ; use Universal or Existential class")
@@ -64,6 +61,8 @@ class C:
 		self.cons = self.bup # We restore the original function in case chaining has happened
 		return return_val
 
+		
+
 
 def quantifier_cons(constructor):
 	def f(var):
@@ -71,14 +70,14 @@ def quantifier_cons(constructor):
 
 	return f
 
-U = quantifier_cons(Universal)
+A = quantifier_cons(Universal)
 E = quantifier_cons(Existential)
 
-Ax = U("x")
+Ax = A("x")
 Ex = E("x")
 
-Ay = U("y")
+Ay = A("y")
 Ey = E("y")
 
-Az = U("z")
+Az = A("z")
 Ez = E("z")

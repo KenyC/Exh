@@ -23,7 +23,6 @@ class Alternatives():
 
 	def find_maximal_sets(universe, props):
 		truthTable = universe.evaluate(*props)
-		print(truthTable)
 		maximalSets = []
 
 		for s in truthTable:

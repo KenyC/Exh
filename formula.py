@@ -1,7 +1,12 @@
 import numpy as np
-from vars import VarManager
+import utils
 from collections import defaultdict
+import itertools
+
+from vars import VarManager
 import options
+
+
 
 class Formula:
 
@@ -22,7 +27,7 @@ class Formula:
 	def display(self):
 
 		def paren(typeF, child):
-			if (typeF == child.type) or (child.type == "var"):
+			if (typeF == child.type) or (child.type == "var") or (child.type == "not"):
 				return str(child)
 			else:
 				return "({})".format(child)
@@ -52,34 +57,53 @@ class Formula:
 			elif self.type == "exh":
 				return self.children[0] == self.children[0]
 
-	def evaluate(self, assignment, vm = None):
+	def evaluate(self, **kwargs):
 
-		# if self.type == "var":
-		# 	return assignment[:, self.children[0]]
-		# elif self.type == "and":
-		# 	return np.logical_and(self.children[0].evaluate(assignment), self.children[1].evaluate(assignment))
-		# elif self.type == "or":
-		# 	return np.logical_or(self.children[0].evaluate(assignment), self.children[1].evaluate(assignment))
-		# elif self.type == "not":
-		# 	return np.logical_not(self.children[0].evaluate(assignment))
-
-		return self.evaluate_aux(assignment, vm = None)
+		if "vm" in kwargs:
+			vm = kwargs["vm"]
+		else: 
+			vm = self.vm
 
 
-	def evaluate_aux(self, assignment, variables = dict(), vm = None):
+		if "assignment" in kwargs:
+			assignment = kwargs["assignment"]
+		else:
+			assignment = np.full(vm.n, True)
 
-		if vm is None:
-			vm = self.vars()
+			for var, val in kwargs.items():
+				if var in vm.names:
+					idx = vm.names[var]
+				else:
+					continue
 
+				deps = vm.preds[idx]
+
+				for t in itertools.product(range(options.dom_quant), repeat = len(deps)):
+					i = vm.index(idx, **{key: val for key, val in zip(deps, t)})
+					assignment[i] = utils.get(val, t)
+
+			assignment = assignment[np.newaxis, :]
+
+
+		to_return = self.evaluate_aux(assignment, vm)
+
+		if all(dim == 1 for dim in to_return.shape):
+			return np.asscalar(to_return)
+		else:
+			return to_return
+
+
+	def evaluate_aux(self, assignment, vm, variables = dict()):
+	
 
 		if self.type == "and":
-			return np.logical_and(self.children[0].evaluate_aux(assignment, variables, vm),
-								  self.children[1].evaluate_aux(assignment, variables, vm))
+			return np.logical_and(self.children[0].evaluate_aux(assignment, vm, variables),
+								  self.children[1].evaluate_aux(assignment, vm, variables))
 		elif self.type == "or":
-			return np.logical_or(self.children[0].evaluate_aux(assignment, variables, vm),
-								  self.children[1].evaluate_aux(assignment, variables, vm))
+			return np.logical_or(self.children[0].evaluate_aux(assignment, vm, variables),
+								  self.children[1].evaluate_aux(assignment, vm, variables))
 		elif self.type == "not":
-			return np.logical_not(self.children[0].evaluate_aux(assignment, variables, vm))
+			return np.logical_not(self.children[0].evaluate_aux(assignment, vm, variables))
 
 		return "ohohoo"
 
@@ -122,15 +146,22 @@ class Var(Formula):
 
 		return self
 
-	def evaluate_aux(self, assignment, variables, vm):
-		idx = self.children[0]
-		deps = vm.preds[idx]
-		# print("This is relevant", idx, variables)
-		return assignment[:, idx + sum(variables[dep] * (options.dom_quant ** i)   for i, dep in enumerate(deps) if dep in variables)]
+	def evaluate_aux(self, assignment, vm, variables = dict()):
+		return assignment[:, vm.index(self.idx, **variables)]
 
 	def vars(self):
-		self.vm = VarManager({self.children[0]: self.deps})
+
+		if self.name is None:
+			self.vm = VarManager({self.idx: self.deps})
+		else:
+			self.vm = VarManager({self.idx: self.deps}, names = {self.name: self.idx})
+
 		return self.vm
+
+	@property
+	def idx(self):
+		return self.children[0]
+	
 
 		
 
