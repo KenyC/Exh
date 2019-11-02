@@ -1,7 +1,8 @@
 import numpy as np
 from worlds import Universe
 from formula import Formula
-from quantifiers import E, U
+from vars import VarManager
+
 import exh
 from utils import entails, remove_doubles
 from itertools import product
@@ -13,6 +14,7 @@ d = {"and": lambda l: Formula("and", *l), "or": lambda l: Formula("or", *l),
 
 nonSubst = {"some","all"}
 
+
 class Alternatives():
 
 	def __init__(self, prejacent, *fs):
@@ -20,9 +22,9 @@ class Alternatives():
 		self.p = prejacent
 
 
-		self.n = max(v for f in fs for v in f.vars())
+		self.vm = VarManager.merge(*[f.vm for f in fs])
 
-		self.u = Universe(self.n)
+		self.u = Universe(vm = self.vm)
 
 	def find_maximal_sets(universe, props):
 		truthTable = universe.evaluate(*props)
