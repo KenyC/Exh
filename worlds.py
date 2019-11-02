@@ -96,6 +96,10 @@ class Universe:
 		self.worlds = getAssignment(n)
 
 	def truth_table(self, *fs):
+
+		def str_tuple(tuple):
+			return "({})".format(",".join(list(map(str, t))))
+
 		output = self.evaluate(*fs)
 
 		table = Table()
@@ -109,15 +113,16 @@ class Universe:
 			vm_index = self.vm.var_to_vm_index[var_idx]
 			name_vars[vm_index] = name
 
+		vm_idx_to_deps = list(self.vm.preds.values())
+
 		for i, offset in enumerate(self.vm.offset):
-			if self.vm.preds[i]:
+			if vm_idx_to_deps[i]:
 			
-				ndeps = len(self.vm.preds[i])
+				ndeps = len(vm_idx_to_deps[i])
 			
 				for t in itertools.product(range(options.dom_quant), repeat = ndeps):
-					i_col = offset + sum(val * options.dom_quant ** i for i, val in enumerate(t))
-					print(i_col)
-					name_cols[i_col] = name_vars[i] + str(t)
+					i_col = offset + sum(val * options.dom_quant ** j for j, val in enumerate(t))
+					name_cols[i_col] = name_vars[i] + str_tuple(t)
 
 			else:
 				name_cols[offset] = name_vars[i]

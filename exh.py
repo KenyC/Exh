@@ -47,7 +47,7 @@ class Exhaust:
 			raise ValueError("Exclusion has not been applied yet.")
 
 		evalNegSet = [~f for f in self.innocently_excl] + [self.p]
-		evalPosSet = [f for i,f in enumerate(self.alts) if self.innocently_excl_indices[i] == False]
+		evalPosSet = [f for i,f in enumerate(self.alts) if not self.innocently_excl_indices[i]]
 
 		worldsStengthenedPrejacent = np.prod(self.u.evaluate(*evalNegSet), axis = 1,dtype = "bool")
 		uSPrejacent = self.u.restrict(worldsStengthenedPrejacent)
@@ -56,8 +56,8 @@ class Exhaust:
 			maximalSets = alternatives.Alternatives.find_maximal_sets(uSPrejacent, evalPosSet)
 			self.maximalInclSets = [[evalPosSet[i] for i,b in enumerate(setE) if b] for setE in maximalSets]
 		
-			self.innocently_incl_indices = np.prod(maximalSets, axis = 0)
-			self.innocently_incl = [f for i,f in enumerate(evalPosSet) if self.innocently_incl_indices[i] == True]
+			self.innocently_incl_indices = np.prod(maximalSets, axis = 0, dtype = "bool")
+			self.innocently_incl = [f for i,f in enumerate(evalPosSet) if self.innocently_incl_indices[i]]
 		else:
 			self.maximalInclSets = []
 			self.innocently_incl = []

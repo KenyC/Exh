@@ -1,13 +1,13 @@
 # Exh
 
-You can find a Jupyter notebook tutorial in the main folder to get a headstart for using the library.
+You can find a Jupyter notebook tutorial *Tutorial.ipynb* in the main folder to get a headstart for using the library.
 
 ## Features 
 
   - Innocent inclusion, innocent exclusion of propositional formulas
   - Computing maximal consistent sets of formulas
   - Quantifiers 
-  - Recursively exhaustified formulas and free choice
+  - Recursively exhaustified formulas (free choice example in tutorial)
   
 ## Caveats
  

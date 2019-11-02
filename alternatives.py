@@ -22,24 +22,24 @@ constructors = {"and": lambda pre: Formula("and", *pre.children),
 
 class Alternatives():
 
+	"""
+	Given a set of worlds and a set of propositions, this method returns the maximal sets of propositions that are consistent with one another
+	Algorithm:
+	focus on the sets S of proposition which are all the propositions true in some world
+	return the maximal sets of S
+	"""
 	def find_maximal_sets(universe, props):
 		truthTable = universe.evaluate(*props)
 		maximalSets = []
 
 		for s in truthTable:
 
-			toInsert = True
-
-			for i, m in enumerate(maximalSets):
-				
-				if entails(s, m):
-					toInsert = False
-					break
-				elif entails(m, s):
-					del maximalSets[i]
-				
-			if toInsert:
+			if any(entails(s, m) for m in maximalSets):
+				continue
+			else:
+				maximalSets = [m for m in maximalSets if not entails(m, s)]
 				maximalSets.append(s)
+
 		
 		return np.array(maximalSets, dtype = "bool")
 
