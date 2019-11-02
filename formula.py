@@ -37,10 +37,12 @@ class Formula:
 		elif self.type == "exh":
 			return "exhp[{}]".format(self.children[0].display())
 		else:
+
 			return "{a} {type} {b}".format(type = self.type, a = paren(self.type, 
 																		self.children[0]),
 															 b = paren(self.type, 
 															 			self.children[1]))
+
 
 	def __str__(self):
 		return self.display()
@@ -54,8 +56,9 @@ class Formula:
 				return self.children[0] == other.children[0]
 			elif self.type == "or" or self.type == "and":
 				return (self.children[0] == other.children[0] and self.children[1] == other.children[1]) or (self.children[0] == other.children[1] and self.children[1] == other.children[0])
-			elif self.type == "exh":
-				return self.children[0] == self.children[0]
+			else:
+				return self.eq(other)
+			
 
 	def evaluate(self, **kwargs):
 

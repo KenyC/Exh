@@ -20,6 +20,7 @@ class Exhaust:
 		self.vm = VarManager.merge(prejacent.vm, *[alt.vm for alt in alts])
 		self.u = Universe(vm = self.vm)
 
+
 	def innocently_excludable(self):
 
 		evalSet = [~f for f in self.alts]
@@ -117,12 +118,17 @@ class Exh(Formula):
 	def get_alts(self):
 		return self.e.alts
 
+
 	def vars(self):
 		self.vm = VarManager.merge(self.children[0].vm, *[alt.vm for alt in self.alts])
 		return self.vm
 
 	def diagnose(self):
 		self.e.diagnose()
+
+	def eq(self, other):
+		return (other.type == "exh") and (self.children[0] == other.children[0])
+
 
 	alts = property(get_alts)
 
