@@ -1,4 +1,4 @@
-
+non_subst = {"some", "all", "exh"}
 scales = [{"or", "and"}, {"some", "all"}]
 ii_on = False
 sub = True

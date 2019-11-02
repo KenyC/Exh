@@ -1,30 +1,26 @@
 import numpy as np
-from worlds import Universe
-from formula import Formula
-from vars import VarManager
+from itertools import product
+import copy
 
 import exh
+import options
+from formula import Formula
+from quantifier import Universal, Existential
 from utils import entails, remove_doubles
-from itertools import product
 
 
-d = {"and": lambda l: Formula("and", *l), "or": lambda l: Formula("or", *l),
- "not": lambda l: Formula("not", *l),"exh": lambda l: exh.Exh(l[0]),
- "some": lambda l: E(l[0]), "all": lambda l: U(l[0])}
 
-nonSubst = {"some","all"}
+constructors = {"and": lambda pre: Formula("and", *pre.children),
+				"or": lambda pre: Formula("or", *pre.children),
+				"not": lambda pre: Formula("not", *pre.children),
+				"exh": lambda pre: exh.Exh(pre.children[0], alts = pre.alts),
+				"some": lambda pre: Existential(pre.qvar, pre.children[0]),
+				"all": lambda pre: Universal(pre.qvar, pre.children[0])}
+
+
 
 
 class Alternatives():
-
-	def __init__(self, prejacent, *fs):
-		self.fs = fs
-		self.p = prejacent
-
-
-		self.vm = VarManager.merge(*[f.vm for f in fs])
-
-		self.u = Universe(vm = self.vm)
 
 	def find_maximal_sets(universe, props):
 		truthTable = universe.evaluate(*props)
@@ -47,22 +43,48 @@ class Alternatives():
 		
 		return np.array(maximalSets, dtype = "bool")
 
+	# Performs simple heuristics to simplify alternatives in the set ; A or A is A ; A and A is A
+	def simplify_alt(alt):
+		if alt.type == "or" or alt.type == "and":
+			if alt.children[0] == alt.children[1]:
+				return alt.children[0]
+		return alt
 
-	def alt_aux(p, scales = [], subst = False):
+	def simplify_alts(alts):
+		return list(map(Alternatives.simplify_alt, alts))
+
+
+
+	def alt_aux(p, scales, subst):
 
 		if p.type == "var":
 			return [p]
 
-		relScale = set(t for s in scales if p.type in s for t in s)
-		relScale.add(p.type)
+		rel_scale = set(t for s in scales if p.type in s for t in s if t != p.type)
 
-		childrenAlternative = [Alternatives.alt_aux(child, scales, subst) for child in p.children]
-		toReturn = [d[s](bigProd) for s in relScale for bigProd in product(*childrenAlternative)]
+		children_alternative = [Alternatives.alt_aux(child, scales, subst) for child in p.children]
 
-		return toReturn + ([alt for child in childrenAlternative for alt in child] if subst or p.type in nonSubst else [])
+		children_replacement = []
+		for t in product(*children_alternative):
+			to_append = copy.copy(p)
+			to_append.children = t
 
-	def alt(p, scales, subst):
-		return remove_doubles(Alternatives.alt_aux(p, scales, subst))
+			# Because exhaust performs computation at initialization, we neeed to recreate the object entirely
+			to_append = constructors[p.type](to_append)
+			children_replacement.append(to_append)
+
+		scale_replacement = []
+		for scale_mate in rel_scale:
+			for child in children_replacement:
+				scale_replacement.append(constructors[scale_mate](child))
+
+		if subst and p.type not in options.non_subst:
+			return children_replacement + scale_replacement + [alt for child_alts in children_alternative for alt in child_alts]
+		else:
+			return children_replacement + scale_replacement
+
+	def alt(p, scales = [], subst = False):
+		return remove_doubles(Alternatives.simplify_alts(Alternatives.alt_aux(p, scales, subst)))
 
 
 

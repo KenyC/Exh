@@ -21,3 +21,4 @@ def get(array, index_tuple):
 		to_return = to_return[index]
 
 	return to_return
+

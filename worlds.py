@@ -83,11 +83,9 @@ class Universe:
 
 		print(t)
 
-	def equivalent(self,f,g):
-		return self.evaluate(f) == self.evaluate(g)
+	
 
-	def consistent(self, *l):
-		return np.amax(np.amin(self.evaluate(*l), axis = 1), axis = 0)
+	
 
 	def restrict(self, indices):
 		return Universe(vm = self.vm, worlds = self.worlds[indices])

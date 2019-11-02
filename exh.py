@@ -17,7 +17,7 @@ class Exhaust:
 		self.incl = False
 		self.excl = False
 
-		self.vm = VarManager.merge(prejacent.vm, *[alt.vm for alt in alts])
+		self.vm = VarManager.merge(prejacent.vm, *[alt.vm for alt in self.alts])
 		self.u = Universe(vm = self.vm)
 
 
@@ -72,20 +72,20 @@ class Exhaust:
 			return "; ".join(str_fs) 
 
 		if self.excl:
-			print("Maximal Sets (excl)")
+			print("Maximal Sets (excl):")
 			for excl in self.maximalExclSets:
 				print(excl)
 			print()
-			print("Innocently excludable", colon_sep_fs(self.innocently_excl))
+			print("Innocently excludable:", colon_sep_fs(self.innocently_excl))
 
 		if self.incl:
 			print()
 			print()
-			print("Maximal Sets (incl)")
+			print("Maximal Sets (incl):")
 			for incl in self.maximalInclSets:
 				print(incl)
 			print()
-			print("Innocently includable", colon_sep_fs(self.innocently_incl))
+			print("Innocently includable:", colon_sep_fs(self.innocently_incl))
 		print()
 
 class Exh(Formula):

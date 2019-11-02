@@ -56,8 +56,8 @@ class Formula:
 				return self.children[0] == other.children[0]
 			elif self.type == "or" or self.type == "and":
 				return (self.children[0] == other.children[0] and self.children[1] == other.children[1]) or (self.children[0] == other.children[1] and self.children[1] == other.children[0])
-			else:
-				return self.eq(other)
+		else:
+			return False
 			
 
 	def evaluate(self, **kwargs):
@@ -165,6 +165,15 @@ class Var(Formula):
 	def idx(self):
 		return self.children[0]
 	
+
+# class PartialVar(Formula):
+
+# 	def __init__(self, var, **values):
+# 		self.parent = var
+# 		self.values = values
+# 		super(PartialVar, self).__init__("p_var", var.number)
+
+		
 
 		
 

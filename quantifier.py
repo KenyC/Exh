@@ -16,6 +16,12 @@ class Quantifier(Formula):
 	def fun(self, results):
 		raise Exception("Evaluation of abstract class Quantifier ; use Universal or Existential class")
 
+	def __eq__(self, other):
+		if self.type == other.type:
+			if self.qvar == other.qvar:
+				return self.children[0] == other.children[0]
+		return False
+
 
 
 class Universal(Quantifier):

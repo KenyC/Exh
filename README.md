@@ -6,8 +6,8 @@ You can find a Jupyter notebook tutorial in the main folder to get a headstart f
 
   - Innocent inclusion, innocent exclusion of propositional formulas
   - Computing maximal consistent sets of formulas
-  - Recursively exhaustified formulas
   - Quantifiers 
+  - Recursively exhaustified formulas and free choice
   
 ## Caveats
  
