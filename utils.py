@@ -1,4 +1,6 @@
 import numpy as np
+from IPython.display import Math, display, HTML
+
 
 def entails(a, b):
 	return np.all(np.logical_or(np.logical_not(a), b))
@@ -22,3 +24,5 @@ def get(array, index_tuple):
 
 	return to_return
 
+def jprint(*args):
+	display(HTML(" ".join(list(map(str, args)))))

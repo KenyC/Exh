@@ -29,19 +29,23 @@ class Alternatives():
 	return the maximal sets of S
 	"""
 	def find_maximal_sets(universe, props):
-		truthTable = universe.evaluate(*props)
-		maximalSets = []
+		truth_table = universe.evaluate(*props)
+		maximal_sets = []
 
-		for s in truthTable:
+		# for every world,
+		for s in truth_table:
 
-			if any(entails(s, m) for m in maximalSets):
+			# test if the set of true proposition in that world is smaller than any of the current maximal sets
+			# if yes, go on to the next world
+			# if no, remove any smaller set from maximal set and insert
+			if any(entails(s, m) for m in maximal_sets):
 				continue
 			else:
-				maximalSets = [m for m in maximalSets if not entails(m, s)]
-				maximalSets.append(s)
+				maximal_sets = [m for m in maximal_sets if not entails(m, s)]
+				maximal_sets.append(s)
 
 		
-		return np.array(maximalSets, dtype = "bool")
+		return np.array(maximal_sets, dtype = "bool")
 
 	# Performs simple heuristics to simplify alternatives in the set ; A or A is A ; A and A is A
 	def simplify_alt(alt):
@@ -69,7 +73,7 @@ class Alternatives():
 			to_append = copy.copy(p)
 			to_append.children = t
 
-			# Because exhaust performs computation at initialization, we neeed to recreate the object entirely
+			# Because exhaust performs computation at initialization, we need to recreate the object entirely.
 			to_append = constructors[p.type](to_append)
 			children_replacement.append(to_append)
 

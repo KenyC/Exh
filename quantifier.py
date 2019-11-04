@@ -7,8 +7,10 @@ class Quantifier(Formula):
 		self.symbol = "Q"
 		self.qvar = quant_var
 
-	def display(self):
-		return "{symb}{var}, {scope}".format(symb = self.symbol, var = self.qvar, scope = self.children[0].display()) 
+	def display_aux(self, display_dict):
+		return "{symb} {var}, {scope}".format(symb = display_dict[self.type],
+											 var = self.qvar,
+											 scope = self.children[0].display_aux(display_dict)) 
 
 	def evaluate_aux(self, assignment, vm, variables = dict()):
 		return self.fun(np.stack([self.children[0].evaluate_aux(assignment, vm, dict(variables, **{self.qvar: i})) for i in range(options.dom_quant)], axis = 0))

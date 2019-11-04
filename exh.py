@@ -4,6 +4,7 @@ from worlds import Universe
 from vars import VarManager
 from formula import Formula
 import options
+from utils import jprint
 
 class Exhaust:
 	
@@ -72,21 +73,21 @@ class Exhaust:
 			return "; ".join(str_fs) 
 
 		if self.excl:
-			print("Maximal Sets (excl):")
+			jprint("Maximal Sets (excl):")
 			for excl in self.maximalExclSets:
-				print(excl)
-			print()
-			print("Innocently excludable:", colon_sep_fs(self.innocently_excl))
+				jprint("{" + colon_sep_fs(excl) + "}") 
+			jprint()
+			jprint("Innocently excludable:", colon_sep_fs(self.innocently_excl))
 
 		if self.incl:
-			print()
-			print()
-			print("Maximal Sets (incl):")
+			jprint()
+			jprint()
+			jprint("Maximal Sets (incl):")
 			for incl in self.maximalInclSets:
-				print(incl)
-			print()
-			print("Innocently includable:", colon_sep_fs(self.innocently_incl))
-		print()
+				jprint("{" + colon_sep_fs(incl) + "}") 
+			jprint()
+			jprint("Innocently includable:", colon_sep_fs(self.innocently_incl))
+		jprint()
 
 class Exh(Formula):
 	
@@ -105,8 +106,8 @@ class Exh(Formula):
 
 		super(Exh, self).__init__("exh", child)
 
-	def display(self):
-		return "exh[{}]".format(self.children[0].display())
+	# def display_aux(self):
+	# 	return "exh[{}]".format(self.children[0].display())
 
 	def evaluate_aux(self, assignment, vm, variables = dict()):
 

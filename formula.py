@@ -1,8 +1,10 @@
 import numpy as np
-import utils
 from collections import defaultdict
 import itertools
 
+from IPython.display import Math, display, HTML
+
+import utils
 from vars import VarManager
 import options
 
@@ -24,25 +26,33 @@ class Formula:
 	def __invert__(self):
 		return Formula("not", self)
 
-	def display(self):
+	def display(self, latex = options.latex_display):
+		if latex:
+			return "${}$".format(self.display_aux(options.latex_dict))
+		else:
+			return self.display_aux(options.normal_dict)
+
+	def display_aux(self, display_dict = options.normal_dict):
 
 		def paren(typeF, child):
 			if (typeF == child.type) or (child.type == "var") or (child.type == "not"):
-				return str(child)
+				return child.display_aux(display_dict)
 			else:
-				return "({})".format(child)
+				return "({})".format(child.display_aux(display_dict))
 
-		if self.type == "not":
-			return "not[{}]".format(self.children[0].display())
-		elif self.type == "exh":
-			return "exhp[{}]".format(self.children[0].display())
+		if self.type == "not" or self.type == "exh":
+			return "{}[{}]".format(display_dict[self.type], self.children[0].display_aux(display_dict))
 		else:
-
-			return "{a} {type} {b}".format(type = self.type, a = paren(self.type, 
-																		self.children[0]),
-															 b = paren(self.type, 
-															 			self.children[1]))
-
+			return "{a} {type} {b}".format(type = display_dict[self.type],
+											a = paren(self.type, 
+													self.children[0]),
+											b = paren(self.type, 
+													self.children[1]))
+	def show(self, latex = options.latex_display):
+		if latex:
+			display(Math(self.display(latex)))
+		else:
+			print(self.display(latex))
 
 	def __str__(self):
 		return self.display()
@@ -129,7 +139,7 @@ class Var(Formula):
 		self.name = name
 		super(Var, self).__init__("var", number)
 
-	def display(self):
+	def display_aux(self, display_dict):
 		if self.deps:
 			dep_string = "({})".format(",".join(list(self.deps)))
 		else:
@@ -164,6 +174,7 @@ class Var(Formula):
 	@property
 	def idx(self):
 		return self.children[0]
+
 	
 
 # class PartialVar(Formula):
