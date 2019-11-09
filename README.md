@@ -15,6 +15,6 @@ You can find a Jupyter notebook tutorial *Tutorial.ipynb* in the main folder to 
   
 ## Modules needed
 
-  - Numpy 1.14 
-  - Jupyter 1.0.0
+  - Numpy > 1.14 
+  - Jupyter > 1.0.0
 
