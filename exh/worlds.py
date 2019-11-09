@@ -1,10 +1,10 @@
 import numpy as np
 import itertools
 
-import options
-from assignment import getAssignment
-from vars import VarManager
-from table import Table
+import exh.options as options
+import exh.utils as utils
+from exh.vars import VarManager
+from exh.table import Table
 # from formula import Var
 
 
@@ -22,7 +22,7 @@ class Universe:
 		self.n = self.vm.n
 
 		if "worlds" not in kwargs:
-			self.worlds = getAssignment(self.n)
+			self.worlds = utils.getAssignment(self.n)
 		else:
 			self.worlds = kwargs["worlds"]
 
@@ -93,7 +93,7 @@ class Universe:
 	def update(self, var):
 		self.vm = VarManager.merge(self.vm, var.vm)
 		self.n = self.vm.n
-		self.worlds = getAssignment(n)
+		self.worlds = utils.getAssignment(n)
 
 	def truth_table(self, *fs):
 

@@ -1,5 +1,6 @@
-from formula import *
 from collections import defaultdict
+
+from exh.formula import *
 
 class Quantifier(Formula):
 	def __init__(self, quant_var, scope):

@@ -2,11 +2,11 @@ import numpy as np
 from itertools import product
 import copy
 
-import exh
-import options
-from formula import Formula
-from quantifier import Universal, Existential
-from utils import entails, remove_doubles
+import exh.exh as exh
+import exh.options as options
+from exh.formula import Formula
+from exh.quantifier import Universal, Existential
+from exh.utils import entails, remove_doubles
 
 
 

@@ -1,10 +1,12 @@
 import numpy as np
-import alternatives
-from worlds import Universe
-from vars import VarManager
-from formula import Formula
-import options
-from utils import jprint
+
+import exh.options as options
+from exh.utils import jprint
+
+import exh.alternatives as alternatives
+from exh.worlds import Universe
+from exh.vars import VarManager
+from exh.formula import Formula
 
 class Exhaust:
 	
