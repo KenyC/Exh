@@ -16,7 +16,18 @@ from exh.vars import VarManager
 @utils.add_functions_as_methods(f_simplify + f_display + f_evaluate)
 class Formula:
 
+	# LateX display for the different formulas
+	latex_dict = {"and": r"\wedge", "or": r"\vee", "not": r"\neg",
+				 "exh": r"Exh"}
+
+	# Plain text display for the different formulas
+	normal_dict = {"and": "and", "or": "or", "not": "not",
+				 "exh": r"Exh"}
+
+	substitutable = True
+
 	def __init__(self, typeF, *child):
+		self.subst = self.__class__.substitutable
 		self.children = child
 		self.type = typeF
 		self.vars()
@@ -35,6 +46,9 @@ class Formula:
 
 	def __repr__(self):
 		return self.display()
+
+	def copy(self):
+		return Formula(self.type, *self.children)
 
 	"""
 	Returns true if two formulas are syntactically the same, up to constituent reordering
@@ -144,7 +158,7 @@ class Var(Formula):
 	def simplify(self):
 		return self
 
-	def display_aux(self, display_dict):
+	def display_aux(self, latex):
 		if self.deps:
 			dep_string = "({})".format(",".join(list(self.deps)))
 		else:

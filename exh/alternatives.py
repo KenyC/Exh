@@ -74,7 +74,7 @@ class Alternatives():
 			to_append.children = t
 
 			# Because exhaust performs computation at initialization, we need to recreate the object entirely.
-			to_append = constructors[p.type](to_append)
+			to_append = to_append.copy()#constructors[p.type](to_append)
 			children_replacement.append(to_append)
 
 		scale_replacement = []
@@ -82,7 +82,7 @@ class Alternatives():
 			for child in children_replacement:
 				scale_replacement.append(constructors[scale_mate](child))
 
-		if subst and p.type not in options.non_subst:
+		if subst and p.subst:
 			return children_replacement + scale_replacement + [alt for child_alts in children_alternative for alt in child_alts]
 		else:
 			return children_replacement + scale_replacement

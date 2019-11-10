@@ -9,15 +9,19 @@ Attributes:
 	- qvar: string name of the individual variable of quantification
 """
 class Quantifier(Formula):
+
+	substitutable = False
+
 	def __init__(self, quant_var, scope):
 		super(Quantifier, self).__init__("quant", scope)
-		self.symbol = "Q"
+		self.plain_symbol = "Q"
+		self.latex_symbol = "Q"
 		self.qvar = quant_var
 
-	def display_aux(self, display_dict):
-		return "{symb} {var}, {scope}".format(symb = display_dict[self.type],
+	def display_aux(self, latex):
+		return "{symb} {var}, {scope}".format(symb = self.latex_symbol if latex else self.plain_symbol,
 											 var = self.qvar,
-											 scope = self.children[0].display_aux(display_dict)) 
+											 scope = self.children[0].display_aux(latex)) 
 
 	def evaluate_aux(self, assignment, vm, variables = dict()):
 		return self.fun(np.stack([self.children[0].evaluate_aux(assignment, vm, dict(variables, **{self.qvar: i})) for i in range(options.dom_quant)], axis = 0))
@@ -31,13 +35,21 @@ class Quantifier(Formula):
 				return self.children[0] == other.children[0]
 		return False
 
+	@property
+	def scope(self):
+		return self.children[0]
+	
+
+	def copy(self):
+		return self.__class__(self.qvar, self.scope)
 
 
 class Universal(Quantifier):
 
 	def __init__(self, *args, **kwargs):
 		super(Universal, self).__init__(*args, **kwargs)
-		self.symbol = "\u2200"
+		self.plain_symbol = "\u2200"
+		self.latex_symbol = r"\forall"
 		self.type = "all"
 
 	def fun(self, results):
@@ -47,7 +59,8 @@ class Existential(Quantifier):
 
 	def __init__(self, *args, **kwargs):
 		super(Existential, self).__init__(*args, **kwargs)
-		self.symbol = "\u2203"
+		self.plain_symbol = "\u2203"
+		self.latex_symbol = r"\exists"
 		self.type = "some"
 
 	def fun(self, results):

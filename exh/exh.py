@@ -94,6 +94,8 @@ class Exhaust:
 		jprint()
 
 class Exh(Formula):
+
+	substitutable = False
 	
 	def __init__(self, child, alts = None, scales = options.scales, subst = options.sub, ii = options.ii_on):
 		self.e = Exhaust(child, alts, scales, subst)
@@ -133,6 +135,14 @@ class Exh(Formula):
 
 	def eq(self, other):
 		return (other.type == "exh") and (self.children[0] == other.children[0])
+
+	@property
+	def prejacent(self):
+		return self.children[0]
+	
+
+	def copy(self):
+		return Exh(self.prejacent, alts = self.alts)
 
 
 	alts = property(get_alts)

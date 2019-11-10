@@ -7,11 +7,16 @@ Returns string representation of the object, in plain text or Latex
 """
 def display(self, latex = options.latex_display):
 	if latex:
-		return "${}$".format(self.display_aux(options.latex_dict))
+		return "${}$".format(self.display_aux(latex))
 	else:
-		return self.display_aux(options.normal_dict)
+		return self.display_aux(latex)
 
-def display_aux(self, display_dict = options.normal_dict):
+def display_aux(self, latex):
+
+	if latex:
+		display_dict = self.__class__.latex_dict
+	else:
+		display_dict = self.__class__.plain_dict
 
 	def paren(typeF, child):
 		if (typeF == child.type) or (child.type == "var") or (child.type == "not"):
@@ -20,7 +25,7 @@ def display_aux(self, display_dict = options.normal_dict):
 			return "({})".format(child.display_aux(display_dict))
 
 	if self.type == "not" or self.type == "exh":
-		return "{}[{}]".format(display_dict[self.type], self.children[0].display_aux(display_dict))
+		return "{}[{}]".format(display_dict[self.type], self.children[0].display_aux(latex))
 	else:
 		return " {type} ".format(type = display_dict[self.type]).join([paren(self.type,	child) for child in self.children])
 """
