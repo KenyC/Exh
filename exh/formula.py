@@ -36,6 +36,9 @@ class Formula:
 	def __repr__(self):
 		return self.display()
 
+	"""
+	Returns true if two formulas are syntactically the same, up to constituent reordering
+	"""
 	def __eq__(self, other):
 		if self.type == other.type:
 			if self.type == "var" or self.type == "neg":
@@ -60,6 +63,10 @@ class Formula:
 
 	
 	### FORMULA MANIPULATION METHODS ###
+	"""
+	Turns embedded "or" and "and" in to generalized "or" and "and"
+	Ex: a or ((b or c) or d) becomes a or b or c or d 
+	"""
 	def flatten(self):
 		if self.type in ["and", "or"]:
 			new_children = list(self.iterator_type())
@@ -71,6 +78,7 @@ class Formula:
 
 	"""
 	Turns a formula into a quantifier-first, disjunctions of conjunctions formula
+	TODO
 	"""
 	def simplify(self):
 
@@ -100,7 +108,9 @@ class Formula:
 		else:
 			return self
 
-
+	"""
+	Returns a VariableManager object for all the variables that occur in the formula
+	"""
 	def vars(self):
 		self.vm = VarManager.merge(*[c.vars() for c in self.children])
 		self.vm.linearize()
@@ -108,25 +118,18 @@ class Formula:
 
 
 
-# def Var(number):
-# 	return Formula("var", number)
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 ############### VARIABLE CLASS ################
 
+"""
+Class for atomic proposition and predicate variable
 
+Attributes:
+	- name : name for display and evaluation
+	- deps : for n-ary predicates, the set of variables that the predicate depends on
+	- idx : an integer that uniquely identifies the predicate
+"""
 class Var(Formula):
 
 	def __init__(self, number, depends_on = None, name = None):

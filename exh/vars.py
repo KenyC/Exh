@@ -1,5 +1,15 @@
 import exh.options as options
 
+"""
+VarManager keeps track of all independent variables in a given system.
+Maps propositional variables and fully saturated predicate variables to indices
+
+Example: 
+System: unary predicate p and proposition q; domain of individuals = 3
+Values: p(0) p(1) p(2) q
+are mapped to
+Indices: 0    1    2   3
+"""
 class VarManager:
 
 	def __init__(self, preds, names = dict()):
@@ -10,8 +20,14 @@ class VarManager:
 		self.linearize()
 
 	def linearize(self):
+		# All individual variables recorded
 		self.dependencies = set(dep for value in self.preds.values() for dep in value)
 		self.pred_index = list(self.preds.keys())
+
+		# How many independent boolean values to specify the propositional variables.
+		# propositions: 1 i
+		# unary predicate: dom_quant
+		# etc
 		self.memory = [options.dom_quant ** len(deps)  for pred, deps in self.preds.items()]
 		
 		self.offset = [0]

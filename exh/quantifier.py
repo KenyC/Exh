@@ -2,6 +2,12 @@ from collections import defaultdict
 
 from exh.formula import *
 
+"""
+Abstract class for quantified formula
+Attributes:
+	- symbol : display symbol (obsolete)
+	- qvar: string name of the individual variable of quantification
+"""
 class Quantifier(Formula):
 	def __init__(self, quant_var, scope):
 		super(Quantifier, self).__init__("quant", scope)
@@ -47,10 +53,14 @@ class Existential(Quantifier):
 	def fun(self, results):
 		return np.max(results, axis = 0)
 
-# The followin baroque construction allows us to write quantifierd formula in parenthesis-free way:
-# Ax > Ey > a | b
-# To do this, we twist Python in ways that are not recommendable for other purposes
-# Reasonable usage of the library should not incur any problems
+"""
+The following baroque construction allows us to write quantifierd formula in parenthesis-free way:
+Ax > Ey > a | b
+To do this, we twist Python in ways that are not recommendable for other purposes.
+Reasonable usage of the library should not incur any problems.
+
+The class C is such that "C() > formula37" will return a formula built from "formula37" using function cons
+"""
 class C:
 	def __init__(self, function):
 		self.cons = function
@@ -58,7 +68,7 @@ class C:
 
 	def __gt__(self, other): 
 		# In python, A > B > C is evaluated as (A > B) and (B > C) ; 
-		# this is not the semantics we want so we allow A>B to change the value of B before evaluation in conjunct 2
+		# this is not the semantics we want so we allow A>B to change the value of B before evaluation in conjunct (B>C)
 		# This is highly unorthodox ; don't try at home
 		return_val = True
 		if isinstance(other, Formula):
@@ -72,7 +82,7 @@ class C:
 
 		
 
-
+# Returns a C class from a formula constructor
 def quantifier_cons(constructor):
 	def f(var):
 		return C(lambda formula: constructor(var, formula))

@@ -5,6 +5,9 @@ from IPython.core.display import display, HTML
 def to_str_list(list_vars):
 	return list(map(str, list_vars))
 
+"""
+Helper class to draw tables in HTML
+"""
 class Table:
 
 	HLINE = 0

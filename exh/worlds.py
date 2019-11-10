@@ -7,7 +7,9 @@ from exh.vars import VarManager
 from exh.table import Table
 # from formula import Var
 
-
+"""
+Universe generates a set of worlds for a formula, a set of formulas, or an index
+"""
 class Universe:
 
 	def __init__(self, **kwargs):

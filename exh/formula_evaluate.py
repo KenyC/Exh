@@ -6,6 +6,18 @@ import exh.options as options
 
 ### EVALUATION METHODS ###			
 
+"""
+Evaluate the formula with respect to an assignment of values to the propositional and predicate variable
+
+Arguments:
+	- vm (optional, default = self.vm) : a variable manager for the variables in the formula
+	either
+		- assignment : a boolean numpy array ; at index i, is the value for the independent variable with index i according to vm
+	or
+		- kwargs : a dictionary ; for every key, provides the value of the propositional or predicate variable with that name
+			if proposition, the value must be boolean
+			if n-ary predicate, value must be a boolean numpy array with size (options.dom_quant)^n
+"""
 def evaluate(self, **kwargs):
 
 	if "vm" in kwargs:
@@ -13,7 +25,7 @@ def evaluate(self, **kwargs):
 	else: 
 		vm = self.vm
 
-
+	# If assignment is provided, use it ; otherwise, construct one from keyword arguments
 	if "assignment" in kwargs:
 		assignment = kwargs["assignment"]
 	else:
