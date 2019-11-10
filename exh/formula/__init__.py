@@ -4,16 +4,16 @@ import itertools
 
 from IPython.display import Math, display, HTML
 
-import exh.formula_simplify
-import exh.formula_display
-import exh.formula_evaluate
+from .simplify import methods as f_simplify
+from .display import methods as f_display
+from .evaluate import methods as f_evaluate
 
 import exh.utils as utils
 import exh.options as options
 from exh.vars import VarManager
 
 
-@utils.add_functions_as_methods(exh.formula_simplify.methods + exh.formula_display.methods + exh.formula_evaluate.methods)
+@utils.add_functions_as_methods(f_simplify + f_display + f_evaluate)
 class Formula:
 
 	def __init__(self, typeF, *child):

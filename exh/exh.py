@@ -3,12 +3,14 @@ import numpy as np
 import exh.options as options
 from exh.utils import jprint
 
+# This is a circular import ; better import it at runtime
 import exh.alternatives as alternatives
 from exh.worlds import Universe
 from exh.vars import VarManager
 from exh.formula import Formula
 
 class Exhaust:
+	
 	
 	def __init__(self, prejacent, alts = None, scales = options.scales, subst = options.sub):
 		self.p = prejacent

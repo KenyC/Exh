@@ -2,7 +2,7 @@ import numpy as np
 from itertools import product
 import copy
 
-import exh.exh as exh
+from . import exh as exhaust
 import exh.options as options
 from exh.formula import Formula
 from exh.quantifier import Universal, Existential
@@ -13,7 +13,7 @@ from exh.utils import entails, remove_doubles
 constructors = {"and": lambda pre: Formula("and", *pre.children),
 				"or": lambda pre: Formula("or", *pre.children),
 				"not": lambda pre: Formula("not", *pre.children),
-				"exh": lambda pre: exh.Exh(pre.children[0], alts = pre.alts),
+				"exh": lambda pre: exhaust.Exh(pre.children[0], alts = pre.alts),
 				"some": lambda pre: Existential(pre.qvar, pre.children[0]),
 				"all": lambda pre: Universal(pre.qvar, pre.children[0])}
 
