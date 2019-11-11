@@ -19,7 +19,7 @@ def display_aux(self, latex):
 		display_dict = self.__class__.plain_dict
 
 	def paren(typeF, child):
-		if (typeF == child.type) or (child.type == "var") or (child.type == "not"):
+		if (typeF == child.type) or (child.type == "pred") or (child.type == "not"):
 			return child.display_aux(display_dict)
 		else:
 			return "({})".format(child.display_aux(display_dict))

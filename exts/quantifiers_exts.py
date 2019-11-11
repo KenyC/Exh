@@ -17,8 +17,33 @@ class Most(q.Quantifier):
 		return "\\text{{Most }} {var}, {scope}".format(var = self.qvar,
 											 scope = self.children[0].display_aux(display_dict))
 
+
+
+class NumeralQuantifier(q.Quantifier):
+
+	def fun(self, results):
+		return self.numerosity(np.sum(results, axis = 0))
+
+	def numerosity(self, counts):
+		raise Exception("Abstract class NumeralQuantifier can't be instantiated")
+
+
+class ExactlyNQuantifier(NumeralQuantifier):
+
+	def __init__(self, n, *args, **kwargs):
+		self.n = n
+		super(ExactlyN, self).__init__(*args, **kwargs)
+		self.plain_symbol = self.latex_symbol = str(self.n)
+
+	def numerosity(self, counts):
+		return counts == self.n
+
+
 M = q.quantifier_cons(Most)
 
 Mx = M("x")
 My = M("y") 
 Mz = M("z")
+
+def ExactlyN(n, var):
+	return q.C(lambda formula: ExactlyNQuantifier(n, var, formula))

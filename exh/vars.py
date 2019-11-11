@@ -1,4 +1,5 @@
 import exh.options as options
+import exh.exceptions as exceptions
 
 """
 VarManager keeps track of all independent variables in a given system.
@@ -43,7 +44,10 @@ class VarManager:
 		return sum(self.memory)
 
 	def index(self, pred, **variables):
-		deps = self.preds[pred]
+		if pred in self.preds:
+			deps = self.preds[pred]
+		else:
+			raise exceptions.UnknownPred(pred, self)
 
 		pred_idx = [i for i, key in enumerate(self.preds.keys()) if key == pred][0]
 		offset = self.offset[pred_idx]

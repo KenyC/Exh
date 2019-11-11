@@ -9,13 +9,19 @@ from exh.worlds import Universe
 from exh.vars import VarManager
 from exh.formula import Formula
 
+
+"""
+This class orchestrates the computation of exhaustification.
+
+It computes the alternatives, if they are not provided ; it performs IE and II on them
+"""
 class Exhaust:
 	
 	
 	def __init__(self, prejacent, alts = None, scales = options.scales, subst = options.sub):
 		self.p = prejacent
 		if alts is None:
-			self.alts = alternatives.Alternatives.alt(prejacent, scales = scales, subst = subst)
+			self.alts = alternatives.alt(prejacent, scales = scales, subst = subst)
 		else:
 			self.alts = alts
 
@@ -34,7 +40,7 @@ class Exhaust:
 		uPrejacent = self.u.restrict(worldsPrejacent)
 
 		if evalSet:
-			maximalSets = alternatives.Alternatives.find_maximal_sets(uPrejacent, evalSet)
+			maximalSets = alternatives.find_maximal_sets(uPrejacent, evalSet)
 			self.maximalExclSets = [[evalSet[i].children[0] for i,b in enumerate(setE) if b] for setE in maximalSets]
 
 			self.innocently_excl_indices = np.prod(maximalSets, axis = 0, dtype = "bool")
@@ -58,7 +64,7 @@ class Exhaust:
 		uSPrejacent = self.u.restrict(worldsStengthenedPrejacent)
 		
 		if evalPosSet:
-			maximalSets = alternatives.Alternatives.find_maximal_sets(uSPrejacent, evalPosSet)
+			maximalSets = alternatives.find_maximal_sets(uSPrejacent, evalPosSet)
 			self.maximalInclSets = [[evalPosSet[i] for i,b in enumerate(setE) if b] for setE in maximalSets]
 		
 			self.innocently_incl_indices = np.prod(maximalSets, axis = 0, dtype = "bool")
@@ -93,6 +99,9 @@ class Exhaust:
 			jprint("Innocently includable:", colon_sep_fs(self.innocently_incl))
 		jprint()
 
+"""
+This class wraps the class Exhaust into a Formula object, so that it can be evaluated like any Formula object
+"""
 class Exh(Formula):
 
 	substitutable = False

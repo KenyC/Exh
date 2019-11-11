@@ -55,7 +55,7 @@ class Formula:
 	"""
 	def __eq__(self, other):
 		if self.type == other.type:
-			if self.type == "var" or self.type == "neg":
+			if self.type == "pred" or self.type == "neg":
 				return self.children[0] == other.children[0]
 
 			elif self.type == "or" or self.type == "and":
@@ -144,12 +144,12 @@ Attributes:
 	- deps : for n-ary predicates, the set of variables that the predicate depends on
 	- idx : an integer that uniquely identifies the predicate
 """
-class Var(Formula):
+class Pred(Formula):
 
 	def __init__(self, number, depends_on = None, name = None):
 		self.deps = depends_on if depends_on is not None else set()
 		self.name = name
-		super(Var, self).__init__("var", number)
+		super(Pred, self).__init__("pred", number)
 
 
 	def flatten(self):
@@ -200,9 +200,9 @@ class Var(Formula):
 	
 
 
-a = Var(0, name = "a")
-b = Var(1, name = "b")
-c = Var(2, name = "c")
+a = Pred(0, name = "a")
+b = Pred(1, name = "b")
+c = Pred(2, name = "c")
 
 f1 = a & b & ~c
 f2 = a | b & c
