@@ -79,6 +79,38 @@ class Universe:
 		return np.transpose(np.stack([f.evaluate(assignment = self.worlds, vm = self.vm) for f in fs]))
 
 
+	""" 
+	Gives meaningful names to worlds, depending on which predicates they set
+	"""
+	def name_worlds(self):
+
+		def str_tuple(tuple):
+			return "({})".format(",".join(list(map(str, t))))
+			
+		nvars = self.worlds.shape[1]
+		names = [i for i in range(nvars)]
+		name_vars = ["A{}".format(key) for key in self.vm.preds.keys()]
+
+		for name, var_idx in self.vm.names.items():
+			vm_index = self.vm.pred_to_vm_index[var_idx]
+			name_vars[vm_index] = name
+
+		vm_idx_to_deps = list(self.vm.preds.values())
+
+		for i, offset in enumerate(self.vm.offset):
+			ndeps = vm_idx_to_deps[i]
+			
+			if ndeps != 0:
+			
+				for t in itertools.product(range(options.dom_quant), repeat = ndeps):
+					i_col = offset + sum(val * options.dom_quant ** j for j, val in enumerate(t))
+					names[i_col] = name_vars[i] + str_tuple(t)
+
+			else:
+				names[offset] = name_vars[i]
+
+		return names
+
 
 	
 
@@ -95,8 +127,6 @@ class Universe:
 
 	def truth_table(self, *fs):
 
-		def str_tuple(tuple):
-			return "({})".format(",".join(list(map(str, t))))
 
 		output = self.evaluate(*fs)
 
@@ -105,25 +135,25 @@ class Universe:
 		nworlds = self.worlds.shape[0]
 
 		# We find the names for the columns
-		name_cols = [i for i in range(nvars)] + [str(f) for f in fs]
-		name_vars = ["A{}".format(key) for key in self.vm.preds.keys()]
-		for name, var_idx in self.vm.names.items():
-			vm_index = self.vm.pred_to_vm_index[var_idx]
-			name_vars[vm_index] = name
+		name_cols = self.name_worlds() + [str(f) for f in fs]
+		# name_vars = ["A{}".format(key) for key in self.vm.preds.keys()]
+		# for name, var_idx in self.vm.names.items():
+		# 	vm_index = self.vm.pred_to_vm_index[var_idx]
+		# 	name_vars[vm_index] = name
 
-		vm_idx_to_deps = list(self.vm.preds.values())
+		# vm_idx_to_deps = list(self.vm.preds.values())
 
-		for i, offset in enumerate(self.vm.offset):
-			if vm_idx_to_deps[i]:
+		# for i, offset in enumerate(self.vm.offset):
+		# 	ndeps = vm_idx_to_deps[i]
 			
-				ndeps = vm_idx_to_deps[i]
+		# 	if ndeps != 0:
 			
-				for t in itertools.product(range(options.dom_quant), repeat = ndeps):
-					i_col = offset + sum(val * options.dom_quant ** j for j, val in enumerate(t))
-					name_cols[i_col] = name_vars[i] + str_tuple(t)
+		# 		for t in itertools.product(range(options.dom_quant), repeat = ndeps):
+		# 			i_col = offset + sum(val * options.dom_quant ** j for j, val in enumerate(t))
+		# 			name_cols[i_col] = name_vars[i] + str_tuple(t)
 
-			else:
-				name_cols[offset] = name_vars[i]
+		# 	else:
+		# 		name_cols[offset] = name_vars[i]
 
 
 		table.set_header(name_cols)

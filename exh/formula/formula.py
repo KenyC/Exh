@@ -1,21 +1,19 @@
 import numpy as np
 from collections import defaultdict
 import itertools
-import warnings
 
 from IPython.display import Math, display, HTML
 
-from .simplify import methods as f_simplify
-from .display import methods as f_display
-from .evaluate import methods as f_evaluate
+from .simplify import IteratorType
+from .display  import Display
+from .evaluate import Evaluate
 
-from .. import utils
-from .. import options
+from ..     import utils
+from ..     import options
 from ..vars import VarManager
 
 
-@utils.add_functions_as_methods(f_simplify + f_display + f_evaluate)
-class Formula:
+class Formula(IteratorType, Display, Evaluate): # Use sub-classing to spread code over multiple files
 
 	# LateX display for the different formulas
 	latex_dict = {"and": r"\wedge", "or": r"\vee", "not": r"\neg",
@@ -131,6 +129,10 @@ class Formula:
 		self.vm = VarManager.merge(*[c.vars() for c in self.children])
 		self.vm.linearize()
 		return self.vm
+
+############### OPERATORS ##############
+
+
 
 
 ############### TAUTOLOGIES AND ANTILOGIES ########
