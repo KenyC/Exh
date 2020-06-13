@@ -89,5 +89,40 @@ class Table:
 
 		display(HTML(self.cache))
 
+	def print_console(self):
+		self.cache = ""
+
+		def pad(string, width):
+			l = width - len(string) 
+			return (l//2 + l % 2) * " " + string + (l//2) * " "
+
+		def print_row(strings, widths):
+			for i, (string, width) in enumerate(zip(strings, widths)):
+				if i in self.strong_cols:
+					self.add(self.options["char_bold_col"])
+				else:
+					self.add(self.options["char_col"])
+
+				self.add(pad(string, width))
+
+			self.add(self.options["char_col"])
+			self.add("\n")
+
+		def print_line(widths):
+			self.add((sum(widths) + len(widths) + 1) * self.options["char_line"] + "\n")
+
+		rows_and_headers = ([self.header]  if self.header is not None else []) + [row for row in self.rows if isinstance(row, list)]
+		widths = [max(len(row[i]) for row in rows_and_headers) + 2 for i in range(len(rows_and_headers[0]))]
+
+		print_row(self.header, widths)
+		print_line(widths)
+		
+		for row in self.rows:
+			if isinstance(row, list):
+				print_row(row, widths)
+
+		print(self.cache)
+		#self.rows_and_headers
+
 	def add(self, string):
 		self.cache += string

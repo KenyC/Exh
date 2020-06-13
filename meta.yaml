@@ -1,0 +1,32 @@
+{% set name = "exh" %}
+{% set version = "0.1" %}
+
+package:
+  name: "{{ Exh|exh }}"
+  version: "{{ 0.1 }}"
+
+source:
+  git_url: https://github.com/KenyC/Exh
+  git_rev: v0.1
+
+build:
+  number: 0
+  script: "{{ PYTHON }} -m pip install . --no-deps --ignore-installed -vv "
+
+requirements:
+  build:
+    - python
+    - setuptools
+
+  run:
+    - python
+    - numpy x.x
+    - IPython
+
+
+
+about:
+  home:  https://github.com/KenyC/Exh
+  license: MIT
+  license_family: MIT
+  summary: Computes innocent exclusion/inclusions exhaustivity using minimal worlds

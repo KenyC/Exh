@@ -8,9 +8,9 @@ from .simplify import methods as f_simplify
 from .display import methods as f_display
 from .evaluate import methods as f_evaluate
 
-import exh.utils as utils
-import exh.options as options
-from exh.vars import VarManager
+from .. import utils
+from .. import options
+from ..vars import VarManager
 
 
 @utils.add_functions_as_methods(f_simplify + f_display + f_evaluate)
@@ -21,7 +21,7 @@ class Formula:
 				 "exh": r"Exh"}
 
 	# Plain text display for the different formulas
-	normal_dict = {"and": "and", "or": "or", "not": "not",
+	plain_dict = {"and": "and", "or": "or", "not": "not",
 				 "exh": r"Exh"}
 
 	substitutable = True
@@ -144,12 +144,21 @@ Attributes:
 	- deps : for n-ary predicates, the set of variables that the predicate depends on
 	- idx : an integer that uniquely identifies the predicate
 """
+def automatic_var_names():
+	typical_names = ["x{}", "y{}", "z{}"]
+
+	for x in itertools.chain([""], itertools.count()):
+		for var in typical_names:
+			yield var.format(x)
+
 class Pred(Formula):
 
-	def __init__(self, number, depends_on = None, name = None):
-		self.deps = depends_on if depends_on is not None else set()
+
+	def __init__(self, index, name = None, arity = 0, depends_on = None):
 		self.name = name
-		super(Pred, self).__init__("pred", number)
+		self.set_arity(arity, depends_on)
+
+		super(Pred, self).__init__("pred", index)
 
 
 	def flatten(self):
@@ -171,25 +180,24 @@ class Pred(Formula):
 
 
 	def evaluate_aux(self, assignment, vm, variables = dict()):
-		return assignment[:, vm.index(self.idx, **variables)]
+		value_slots = [variables[dep] for dep in self.deps]
+		return assignment[:, vm.index(self.idx, value_slots)]
 
-
-
-	def depends_on(self, var):
-		self.deps.add(var)
 
 	def __call__(self, *variables):
-		for var in variables:
-			self.depends_on(var)
-
-		return self
+		if len(variables) == self.arity:
+			return Pred(self.idx, self.name, self.arity, variables)
+		elif len(variables) > self.arity:
+			raise Exception("More variables were provided than the predicate {} depends on".format(self.name))
+		else:
+			raise Exception("Less variables were provided than the predicate {} depends on".format(self.name))
 
 	def vars(self):
 
 		if self.name is None:
-			self.vm = VarManager({self.idx: self.deps})
+			self.vm = VarManager({self.idx: self.arity})
 		else:
-			self.vm = VarManager({self.idx: self.deps}, names = {self.name: self.idx})
+			self.vm = VarManager({self.idx: self.arity}, names = {self.name: self.idx})
 
 		return self.vm
 
@@ -197,6 +205,22 @@ class Pred(Formula):
 	def idx(self):
 		return self.children[0]
 
+
+
+
+
+
+	def set_arity(self, n, depends_on = None):
+		self.arity = arity
+
+		if depends_on is None: # automatic variable naming
+			self.deps = [var_name for _, var_name in zip(range(self.arity), automatic_var_names())]
+		elif len(depends_on) == self.arity:
+			self.deps = depends_on
+		elif len(depends_on) > self.arity:
+			raise Exception("More variables are named than the predicate depends on")
+		else:
+			raise Exception("Less variables are named than the predicate depends on")
 	
 
 

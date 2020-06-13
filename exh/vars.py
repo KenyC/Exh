@@ -12,25 +12,26 @@ are mapped to
 Indices: 0    1    2   3
 """
 class VarManager:
-
+	"""
+	- pred: a dictionary mapping predicate indices to size in bits
+	- names: a dictionary mapping predicate names to their indices
+	"""
 	def __init__(self, preds, names = dict()):
-		self.preds = preds
+		self.preds = preds 
 		self.names = names
 
-		self.var_to_vm_index = {var_idx: vm_idx for vm_idx, var_idx in enumerate(self.preds.keys())}
+		# var_to_vm_index : dictionary mapping Formula's predicate indices to VarManager's predicate indices
+		self.pred_to_vm_index = {pred_idx: vm_idx for vm_idx, pred_idx in enumerate(self.preds.keys())}
 		self.linearize()
 
 	def linearize(self):
-		# All individual variables recorded
-		self.dependencies = set(dep for value in self.preds.values() for dep in value)
-		self.pred_index = list(self.preds.keys())
-
 		# How many independent boolean values to specify the propositional variables.
 		# propositions: 1 i
 		# unary predicate: dom_quant
 		# etc
-		self.memory = [options.dom_quant ** len(deps)  for pred, deps in self.preds.items()]
+		self.memory = [options.dom_quant ** ndeps  for _, ndeps in self.preds.items()]
 		
+		# position in memory of bits devoted to a parcitular predicate
 		self.offset = [0]
 		for mem in self.memory[:-1]:
 			self.offset.append(self.offset[-1] + mem)
@@ -43,16 +44,16 @@ class VarManager:
 	def n(self):
 		return sum(self.memory)
 
-	def index(self, pred, **variables):
+	def index(self, pred, value_slots):
 		if pred in self.preds:
 			deps = self.preds[pred]
 		else:
 			raise exceptions.UnknownPred(pred, self)
 
-		pred_idx = [i for i, key in enumerate(self.preds.keys()) if key == pred][0]
+		pred_idx = self.pred_to_vm_index[pred]
 		offset = self.offset[pred_idx]
 		
-		return offset + sum(variables[dep] * (options.dom_quant ** i)  for i, dep in enumerate(deps) if dep in variables)
+		return offset + sum(slot * (options.dom_quant ** i)  for i, slot in enumerate(value_slots))
 	
 
 
