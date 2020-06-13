@@ -1,6 +1,7 @@
-from .formula import *
-from .quantifier import *
-from .exh import *
+from .prop    import *
+from .model   import *
+from .fol     import *
+from .exhaust import *
 # from .worlds import *
 
 # Defining the names that are exported with from exh import *

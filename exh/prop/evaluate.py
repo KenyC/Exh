@@ -2,7 +2,7 @@ import numpy as np
 import itertools
 
 import exh.utils as utils
-from . import options as formula_options
+import exh.model.options as options
 
 ### EVALUATION METHODS ###			
 

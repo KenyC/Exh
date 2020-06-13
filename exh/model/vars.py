@@ -1,5 +1,5 @@
-from exh.formula import options
-import exh.exceptions as exceptions
+from . import options
+from . import exceptions
 
 """
 VarManager keeps track of all independent variables in a given system.

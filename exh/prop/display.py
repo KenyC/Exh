@@ -1,4 +1,4 @@
-from . import options as formula_options
+import exh.model.options as options
 
 ### DISPLAY METHODS ####
 
@@ -7,7 +7,7 @@ class Display:
 	"""
 	Returns string representation of the object, in plain text or Latex
 	"""
-	def display(self, latex = formula_options.latex_display):
+	def display(self, latex = options.latex_display):
 		if latex:
 			return "${}$".format(self.display_aux(latex))
 		else:
@@ -33,7 +33,7 @@ class Display:
 	"""
 	Display object, in plain text or LateX
 	"""
-	def show(self, latex = formula_options.latex_display):
+	def show(self, latex = options.latex_display):
 		if latex:
 			display(Math(self.display(latex)))
 		else:

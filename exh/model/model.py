@@ -1,10 +1,10 @@
 import numpy as np
 import itertools
 
-import exh.formula.options as options
+from . import options
 import exh.utils as utils
-from exh.vars import VarManager
-from exh.table import Table
+from .vars import VarManager
+from exh.utils.table import Table
 # from formula import Var
 
 """

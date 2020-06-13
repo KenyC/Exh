@@ -6,11 +6,11 @@ import numpy as np
 from itertools import product
 import copy
 
-from . import exh as exhaust
-import exh.options as options
-from exh.formula import And, Or, Not, Formula, Pred
-from exh.quantifier import Universal, Existential
-from exh.utils import entails, remove_doubles
+from . import exhaust
+from . import options
+from exh.prop       import And, Or, Not, Formula, Pred
+from exh.fol        import Universal, Existential
+from exh.utils      import entails, remove_doubles
 
 
 

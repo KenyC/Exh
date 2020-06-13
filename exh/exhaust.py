@@ -3,12 +3,12 @@ import numpy as np
 
 # This is a circular import ; better import it at runtime
 import exh.alternatives as alternatives
-from exh.worlds         import Universe
-from exh.vars           import VarManager
-import exh.formula      as formula
+import exh.model        as model
+import exh.prop         as prop
+
 
 from exh.utils import jprint
-import exh.options as options2
+import exh.options as options
 
 
 
@@ -20,7 +20,7 @@ It computes the alternatives, if they are not provided ; it performs IE and II o
 class Exhaust:
 	
 	
-	def __init__(self, prejacent, alts = None, scales = options2.scales, subst = options2.sub):
+	def __init__(self, prejacent, alts = None, scales = options.scales, subst = options.sub):
 		self.p = prejacent
 		if alts is None:
 			self.alts = alternatives.alt(prejacent, scales = scales, subst = subst)
@@ -104,11 +104,11 @@ class Exhaust:
 """
 This class wraps the class Exhaust into a Formula object, so that it can be evaluated like any Formula object
 """
-class Exh(formula.Operator):
+class Exh(prop.Operator):
 
 	substitutable = False
 	
-	def __init__(self, child, alts = None, scales = options2.scales, subst = options2.sub, ii = options2.ii_on):
+	def __init__(self, child, alts = None, scales = options.scales, subst = options.sub, ii = options.ii_on):
 		self.e = Exhaust(child, alts, scales, subst)
 		super(Exh, self).__init__(None, child)
 

@@ -8,9 +8,9 @@ from .simplify import IteratorType
 from .display  import Display
 from .evaluate import Evaluate
 
-from ..     import utils
-# from .     import options as options
-from ..vars import VarManager
+import exh.utils         as utils
+import exh.model.options as options
+import exh.model.vars    as var
 
 
 class Formula(IteratorType, Display, Evaluate): # Use sub-classing to spread code over multiple files
@@ -31,9 +31,6 @@ class Formula(IteratorType, Display, Evaluate): # Use sub-classing to spread cod
 		self.children = child
 		self.type = typeF
 		self.vars()
-
-	def reinitialize(self): #only used for Exh, which performs computation at initialization
-		pass
 
 	def __and__(self, other):
 		return And(self, other)
@@ -130,7 +127,7 @@ class Formula(IteratorType, Display, Evaluate): # Use sub-classing to spread cod
 	Returns a VariableManager object for all the variables that occur in the formula
 	"""
 	def vars(self):
-		self.vm = VarManager.merge(*[c.vars() for c in self.children])
+		self.vm = var.VarManager.merge(*[c.vars() for c in self.children])
 		self.vm.linearize()
 		return self.vm
 
@@ -146,7 +143,7 @@ class Operator(Formula):
 		self.fun = fun
 						
 	def evaluate_aux(self, assignment, vm, variables = dict()):
-		return self.fun(np.stack([child.evaluate_aux(assignment, vm, variables) for child in self.children]))
+		return fun(np.stack([child.evaluate_aux(assignment, vm, variables) for child in self.children]))
 
 
 	def display_aux(self, latex):
@@ -158,9 +155,9 @@ class Operator(Formula):
 
 		def paren(child):
 			if (self.__class__ is child.__class__) or child.__class__.no_parenthesis:
-				return child.display_aux(latex)
+				return child.display_aux(display_dict)
 			else:
-				return "({})".format(child.display_aux(latex))
+				return "({})".format(child.display_aux(display_dict))
 
 		if len(self.children) == 1:
 			return "{}[{}]".format(symbol, self.children[0].display_aux(latex))
@@ -283,9 +280,9 @@ class Pred(Formula):
 	def vars(self):
 
 		if self.name is None:
-			self.vm = VarManager({self.idx: self.arity})
+			self.vm = var.VarManager({self.idx: self.arity})
 		else:
-			self.vm = VarManager({self.idx: self.arity}, names = {self.name: self.idx})
+			self.vm = var.VarManager({self.idx: self.arity}, names = {self.name: self.idx})
 
 		return self.vm
 

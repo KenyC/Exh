@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from exh.formula import *
+import exh.prop as prop
 
 """
 Abstract class for quantified formula
@@ -8,23 +8,26 @@ Attributes:
 	- symbol : display symbol (obsolete)
 	- qvar: string name of the individual variable of quantification
 """
-class Quantifier(Formula):
+class Quantifier(prop.Formula):
 
 	substitutable = False
+	plain_symbol = "Q"
+	latex_symbol = "Q"
 
 	def __init__(self, quant_var, scope):
 		super(Quantifier, self).__init__("quant", scope)
-		self.plain_symbol = "Q"
-		self.latex_symbol = "Q"
 		self.qvar = quant_var
 
 	def display_aux(self, latex):
-		return "{symb} {var}, {scope}".format(symb = self.latex_symbol if latex else self.plain_symbol,
-											 var = self.qvar,
+		return "{symb} {var}, {scope}".format(symb = self.__class__.latex_symbol if latex else self.__class__.plain_symbol,
+											 var   = self.qvar,
 											 scope = self.children[0].display_aux(latex)) 
 
 	def evaluate_aux(self, assignment, vm, variables = dict()):
-		return self.fun(np.stack([self.children[0].evaluate_aux(assignment, vm, dict(variables, **{self.qvar: i})) for i in range(options.dom_quant)], axis = 0))
+		return self.fun(np.stack([self.children[0].evaluate_aux(assignment, vm, 
+		                                                        dict(variables, **{self.qvar: i})) 
+		                         for i in range(options.dom_quant)],
+		                         axis = 0))
 
 	def fun(self, results):
 		raise Exception("Evaluation of abstract class Quantifier ; use Universal or Existential class")
@@ -45,22 +48,22 @@ class Quantifier(Formula):
 
 
 class Universal(Quantifier):
+	plain_symbol = "\u2200"
+	latex_symbol = r"\forall"
 
 	def __init__(self, *args, **kwargs):
 		super(Universal, self).__init__(*args, **kwargs)
-		self.plain_symbol = "\u2200"
-		self.latex_symbol = r"\forall"
 		self.type = "all"
 
 	def fun(self, results):
 		return np.min(results, axis = 0)
 
 class Existential(Quantifier):
+	plain_symbol = "\u2203"
+	latex_symbol = r"\exists"
 
 	def __init__(self, *args, **kwargs):
 		super(Existential, self).__init__(*args, **kwargs)
-		self.plain_symbol = "\u2203"
-		self.latex_symbol = r"\exists"
 		self.type = "some"
 
 	def fun(self, results):
@@ -84,7 +87,7 @@ class C:
 		# this is not the semantics we want so we allow A>B to change the value of B before evaluation in conjunct (B>C)
 		# This is highly unorthodox ; don't try at home
 		return_val = True
-		if isinstance(other, Formula):
+		if isinstance(other, prop.Formula):
 			return_val = self.cons(other)
 		else:
 			f = other.cons # We store a reference to the original function so that the lambda term is not interpreted recursively

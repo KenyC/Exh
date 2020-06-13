@@ -1,5 +1,5 @@
-from exh.formula    import Or, And
-from exh.quantifier import Existential, Universal
+from exh.prop    import Or, And
+from exh.fol     import Existential, Universal
 
 # Default scalar scales
 scales = [{Or, And}, {Existential, Universal}]
