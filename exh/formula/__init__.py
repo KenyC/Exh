@@ -1,6 +1,7 @@
 import numpy as np
 from collections import defaultdict
 import itertools
+import warnings
 
 from IPython.display import Math, display, HTML
 
@@ -141,22 +142,25 @@ Class for atomic proposition and predicate variable
 
 Attributes:
 	- name : name for display and evaluation
-	- deps : for n-ary predicates, the set of variables that the predicate depends on
+	- arity : for n-ary predicates, the number of variables that the predicate depends on
+	- deps : the name of the default variables that the predicate depends 
+	(i.e. when no vars are specified, as in Ax > a, this is what the predicate depends on)
 	- idx : an integer that uniquely identifies the predicate
 """
-def automatic_var_names():
-	typical_names = ["x{}", "y{}", "z{}"]
-
-	for x in itertools.chain([""], itertools.count()):
-		for var in typical_names:
-			yield var.format(x)
-
 class Pred(Formula):
 
 
-	def __init__(self, index, name = None, arity = 0, depends_on = None):
+	def __init__(self, index, name = None, depends = None):
 		self.name = name
-		self.set_arity(arity, depends_on)
+
+		if depends is None:
+			depends = []
+		elif isinstance(depends, str):
+			depends = [depends]
+		elif isinstance(depends, int):
+			depends = [depends]
+
+		self.depends(*depends)
 
 		super(Pred, self).__init__("pred", index)
 
@@ -186,11 +190,12 @@ class Pred(Formula):
 
 	def __call__(self, *variables):
 		if len(variables) == self.arity:
-			return Pred(self.idx, self.name, self.arity, variables)
-		elif len(variables) > self.arity:
-			raise Exception("More variables were provided than the predicate {} depends on".format(self.name))
+			return Pred(self.idx, self.name, variables)
 		else:
-			raise Exception("Less variables were provided than the predicate {} depends on".format(self.name))
+			print("""WARNING: {} variables were provided than the predicate {} depends on ; changing the arity of the predicate to {}. Universe objects will need to be recreated."""
+			      .format("More" if len(variables) > self.arity else "Less", self.name, len(variables)))
+			self.depends(*variables)
+			return self
 
 	def vars(self):
 
@@ -208,20 +213,15 @@ class Pred(Formula):
 
 
 
-
-
-	def set_arity(self, n, depends_on = None):
-		self.arity = arity
-
-		if depends_on is None: # automatic variable naming
-			self.deps = [var_name for _, var_name in zip(range(self.arity), automatic_var_names())]
-		elif len(depends_on) == self.arity:
-			self.deps = depends_on
-		elif len(depends_on) > self.arity:
-			raise Exception("More variables are named than the predicate depends on")
+	def depends(self, *depends_on):
+		if depends_on and isinstance(depends_on[0], int):
+			self.arity = depends_on[0]
+			self.deps = [var_name for _, var_name in zip(range(self.arity), utils.automatic_var_names())]
 		else:
-			raise Exception("Less variables are named than the predicate depends on")
-	
+			self.arity = len(depends_on)
+			self.deps = depends_on
+
+
 
 
 a = Pred(0, name = "a")

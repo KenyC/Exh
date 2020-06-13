@@ -20,7 +20,7 @@ class VarManager:
 		self.preds = preds 
 		self.names = names
 
-		# var_to_vm_index : dictionary mapping Formula's predicate indices to VarManager's predicate indices
+		# pred_to_vm_index : dictionary mapping Formula's predicate indices to VarManager's predicate indices
 		self.pred_to_vm_index = {pred_idx: vm_idx for vm_idx, pred_idx in enumerate(self.preds.keys())}
 		self.linearize()
 

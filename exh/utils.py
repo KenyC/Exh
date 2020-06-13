@@ -1,5 +1,6 @@
 import numpy as np
 from IPython.display import Math, display, HTML
+import itertools
 
 """
 Returns all possible assignment of values to n independent boolean variables
@@ -48,3 +49,14 @@ Replacement for print in IPython
 """
 def jprint(*args):
 	display(HTML(" ".join(list(map(str, args)))))
+
+
+"""
+Generator of default variable names
+"""
+def automatic_var_names():
+	typical_names = ["x{}", "y{}", "z{}"]
+
+	for x in itertools.chain([""], itertools.count()):
+		for var in typical_names:
+			yield var.format(x)

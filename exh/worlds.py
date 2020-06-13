@@ -87,6 +87,7 @@ class Universe:
 	def restrict(self, indices):
 		return Universe(vm = self.vm, worlds = self.worlds[indices])
 
+
 	def update(self, var):
 		self.vm = VarManager.merge(self.vm, var.vm)
 		self.n = self.vm.n
@@ -107,7 +108,7 @@ class Universe:
 		name_cols = [i for i in range(nvars)] + [str(f) for f in fs]
 		name_vars = ["A{}".format(key) for key in self.vm.preds.keys()]
 		for name, var_idx in self.vm.names.items():
-			vm_index = self.vm.var_to_vm_index[var_idx]
+			vm_index = self.vm.pred_to_vm_index[var_idx]
 			name_vars[vm_index] = name
 
 		vm_idx_to_deps = list(self.vm.preds.values())
@@ -115,7 +116,7 @@ class Universe:
 		for i, offset in enumerate(self.vm.offset):
 			if vm_idx_to_deps[i]:
 			
-				ndeps = len(vm_idx_to_deps[i])
+				ndeps = vm_idx_to_deps[i]
 			
 				for t in itertools.product(range(options.dom_quant), repeat = ndeps):
 					i_col = offset + sum(val * options.dom_quant ** j for j, val in enumerate(t))

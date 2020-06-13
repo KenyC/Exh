@@ -39,8 +39,8 @@ def evaluate(self, **kwargs):
 
 			deps = vm.preds[idx]
 
-			for t in itertools.product(range(options.dom_quant), repeat = len(deps)):
-				i = vm.index(idx, **{key: val for key, val in zip(deps, t)})
+			for t in itertools.product(range(options.dom_quant), repeat = deps):
+				i = vm.index(idx, t)
 				assignment[i] = utils.get(val, t)
 
 		assignment = assignment[np.newaxis, :]
