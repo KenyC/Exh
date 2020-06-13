@@ -19,6 +19,11 @@ from exh import *
 
 # %%
 
+print(a & b & (c | ~b | c) & b & c)
+print((a &b).__class__)
+
+# %%
+
 d = Pred(4, name = "d", n_ary = 1)
 
 # %%

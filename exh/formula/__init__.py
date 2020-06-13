@@ -1,21 +1,19 @@
 import numpy as np
 from collections import defaultdict
 import itertools
-import warnings
 
 from IPython.display import Math, display, HTML
 
-from .simplify import methods as f_simplify
-from .display import methods as f_display
-from .evaluate import methods as f_evaluate
+from .simplify import IteratorType
+from .display  import Display
+from .evaluate import Evaluate
 
-from .. import utils
-from .. import options
+from ..     import utils
+# from .     import options as options
 from ..vars import VarManager
 
 
-@utils.add_functions_as_methods(f_simplify + f_display + f_evaluate)
-class Formula:
+class Formula(IteratorType, Display, Evaluate): # Use sub-classing to spread code over multiple files
 
 	# LateX display for the different formulas
 	latex_dict = {"and": r"\wedge", "or": r"\vee", "not": r"\neg",
@@ -25,6 +23,7 @@ class Formula:
 	plain_dict = {"and": "and", "or": "or", "not": "not",
 				 "exh": r"Exh"}
 
+	no_parenthesis = False
 	substitutable = True
 
 	def __init__(self, typeF, *child):
@@ -33,14 +32,17 @@ class Formula:
 		self.type = typeF
 		self.vars()
 
+	def reinitialize(self): #only used for Exh, which performs computation at initialization
+		pass
+
 	def __and__(self, other):
-		return Formula("and", self, other)
+		return And(self, other)
 
 	def __or__(self, other):
-		return Formula("or", self, other)
+		return Or(self, other)
 
 	def __invert__(self):
-		return Formula("not", self)
+		return Not(self)
 
 	def __str__(self):
 		return self.display()
@@ -132,6 +134,78 @@ class Formula:
 		self.vm.linearize()
 		return self.vm
 
+############### OPERATORS ##############
+
+class Operator(Formula):
+	plain_symbol = "op"
+	latex_symbol = "\text{op}"
+
+	"""docstring for Operator"""
+	def __init__(self, fun, *children):
+		super(Operator, self).__init__("op", *children)
+		self.fun = fun
+						
+	def evaluate_aux(self, assignment, vm, variables = dict()):
+		return self.fun(np.stack([child.evaluate_aux(assignment, vm, variables) for child in self.children]))
+
+
+	def display_aux(self, latex):
+
+		if latex:
+			symbol = self.__class__.latex_symbol
+		else:
+			symbol = self.__class__.plain_symbol
+
+		def paren(child):
+			if (self.__class__ is child.__class__) or child.__class__.no_parenthesis:
+				return child.display_aux(latex)
+			else:
+				return "({})".format(child.display_aux(latex))
+
+		if len(self.children) == 1:
+			return "{}[{}]".format(symbol, self.children[0].display_aux(latex))
+		else:
+			return " {type} ".format(type = symbol).join([paren(child) for child in self.children])
+
+
+class And(Operator):
+	plain_dict = {"and": "and"}
+	latex_dict = {"and": r"\wedge"}
+
+	plain_symbol = "and"
+	latex_symbol = r"\wedge"
+
+	"""docstring for And"""
+	def __init__(self, *children):
+		super(And, self).__init__(lambda array: np.min(array, axis = 0), *children)
+		
+
+class Or(Operator):
+	plain_dict = {"or": "or"}
+	latex_dict = {"or": r"\vee"}
+	
+	plain_symbol = "or"
+	latex_symbol = r"\vee"
+	
+	"""docstring for Or"""
+	def __init__(self, *children):
+		super(Or, self).__init__(lambda array: np.max(array, axis = 0), *children)
+		
+class Not(Operator):
+	no_parenthesis = True
+
+	plain_dict = {"not": "not"}
+	latex_dict = {"not": r"\neg"}
+
+	plain_symbol = "not"
+	latex_symbol = r"\neg"
+
+	"""docstring for Not"""
+	def __init__(self, child):
+		super(Not, self).__init__(lambda x: np.squeeze(np.logical_not(x), axis = 0), child)
+
+
+
 
 ############### TAUTOLOGIES AND ANTILOGIES ########
 
@@ -156,6 +230,7 @@ Attributes:
 	- idx : an integer that uniquely identifies the predicate
 """
 class Pred(Formula):
+	no_parenthesis = True
 
 
 	def __init__(self, index, name = None, depends = None):

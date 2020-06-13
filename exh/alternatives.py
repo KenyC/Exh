@@ -8,18 +8,18 @@ import copy
 
 from . import exh as exhaust
 import exh.options as options
-from exh.formula import Formula
+from exh.formula import And, Or, Not, Formula, Pred
 from exh.quantifier import Universal, Existential
 from exh.utils import entails, remove_doubles
 
 
 
-constructors = {"and": lambda pre: Formula("and", *pre.children),
-				"or": lambda pre: Formula("or", *pre.children),
-				"not": lambda pre: Formula("not", *pre.children),
-				"exh": lambda pre: exhaust.Exh(pre.children[0], alts = pre.alts),
-				"some": lambda pre: Existential(pre.qvar, pre.children[0]),
-				"all": lambda pre: Universal(pre.qvar, pre.children[0])}
+constructors = {"And":         lambda pre: And(*pre.children),
+				"Or":          lambda pre: Or(*pre.children),
+				"Not":         lambda pre: Not(*pre.children),
+				"Exh":         lambda pre: exhaust.Exh(pre.children[0], alts = pre.alts),
+				"Existential": lambda pre: Existential(pre.qvar, pre.children[0]),
+				"Universal":   lambda pre: Universal(pre.qvar, pre.children[0])}
 
 
 
@@ -52,7 +52,7 @@ def find_maximal_sets(universe, props):
 
 # Performs simple heuristics to simplify a formula: such as "A or A" is "A" ; "A and A" is "A"
 def simplify_alt(alt):
-	if alt.type == "or" or alt.type == "and":
+	if isinstance(alt, Or) or isinstance(alt, And):
 		if len(alt.children) == 2 and alt.children[0] == alt.children[1]:
 			return alt.children[0]
 	return alt
@@ -67,11 +67,12 @@ Return alternatives to a formula following a Katzirian algorithm
 """
 def alt_aux(p, scales, subst):
 
-	if p.type == "pred":
+	if isinstance(p, Pred):
 		return [p]
 
 	# Scales that the current node participates in
-	rel_scale = set(t for s in scales if p.type in s for t in s if t != p.type)
+	rel_scale = set(type_f for s in scales if any(isinstance(p, type_f) for type_f in s) 
+	                       for type_f in s if not isinstance(p, type_f))
 
 	children_alternative = [alt_aux(child, scales, subst) for child in p.children]
 
@@ -80,14 +81,14 @@ def alt_aux(p, scales, subst):
 		to_append = copy.copy(p)
 		to_append.children = t
 
-		# Because exhaust will need to perform computation at initialization, we need to recreate the object entirely.
-		to_append = to_append.copy()#constructors[p.type](to_append)
+		# Because exhaust will need to perform computation at initialization, we need to reinitialize.
+		to_append.reinitialize()#constructors[p.type](to_append)
 		children_replacement.append(to_append)
 
 	scale_replacement = []
 	for scale_mate in rel_scale:
 		for child in children_replacement:
-			scale_replacement.append(constructors[scale_mate](child))
+			scale_replacement.append(constructors[scale_mate.__name__](child))
 
 	if subst and p.subst:
 		return children_replacement + scale_replacement + [alt for child_alts in children_alternative for alt in child_alts]

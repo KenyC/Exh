@@ -1,13 +1,15 @@
 import numpy as np
 
-import exh.options as options
-from exh.utils import jprint
 
 # This is a circular import ; better import it at runtime
 import exh.alternatives as alternatives
-from exh.worlds import Universe
-from exh.vars import VarManager
-from exh.formula import Formula
+from exh.worlds         import Universe
+from exh.vars           import VarManager
+import exh.formula      as formula
+
+from exh.utils import jprint
+import exh.options as options2
+
 
 
 """
@@ -18,7 +20,7 @@ It computes the alternatives, if they are not provided ; it performs IE and II o
 class Exhaust:
 	
 	
-	def __init__(self, prejacent, alts = None, scales = options.scales, subst = options.sub):
+	def __init__(self, prejacent, alts = None, scales = options2.scales, subst = options2.sub):
 		self.p = prejacent
 		if alts is None:
 			self.alts = alternatives.alt(prejacent, scales = scales, subst = subst)
@@ -102,16 +104,22 @@ class Exhaust:
 """
 This class wraps the class Exhaust into a Formula object, so that it can be evaluated like any Formula object
 """
-class Exh(Formula):
+class Exh(formula.Operator):
 
 	substitutable = False
 	
-	def __init__(self, child, alts = None, scales = options.scales, subst = options.sub, ii = options.ii_on):
+	def __init__(self, child, alts = None, scales = options2.scales, subst = options2.sub, ii = options2.ii_on):
 		self.e = Exhaust(child, alts, scales, subst)
-		
+		super(Exh, self).__init__(None, child)
+
+		self.ii = ii
+		self.reinitialize()
+
+	def reinitialize(self):
+		self.e.p = self.prejacent
 		self.ieSet = self.e.innocently_excludable()
 
-		if ii:
+		if self.ii:
 			self.iiSet = self.e.innocently_includable()
 		else:
 			self.iiSet = []
@@ -119,7 +127,6 @@ class Exh(Formula):
 
 		self.evalSet = [~f for f in self.ieSet] + [f for f in self.iiSet]
 
-		super(Exh, self).__init__("exh", child)
 
 	# def display_aux(self):
 	# 	return "exh[{}]".format(self.children[0].display())

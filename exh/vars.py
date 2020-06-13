@@ -1,4 +1,4 @@
-import exh.options as options
+from exh.formula import options
 import exh.exceptions as exceptions
 
 """

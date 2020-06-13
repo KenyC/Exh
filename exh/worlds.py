@@ -1,7 +1,7 @@
 import numpy as np
 import itertools
 
-import exh.options as options
+import exh.formula.options as options
 import exh.utils as utils
 from exh.vars import VarManager
 from exh.table import Table
@@ -86,7 +86,7 @@ class Universe:
 
 		def str_tuple(tuple):
 			return "({})".format(",".join(list(map(str, t))))
-			
+
 		nvars = self.worlds.shape[1]
 		names = [i for i in range(nvars)]
 		name_vars = ["A{}".format(key) for key in self.vm.preds.keys()]

@@ -2,7 +2,7 @@ import numpy as np
 import itertools
 
 import exh.utils as utils
-import exh.options as options
+from . import options as formula_options
 
 ### EVALUATION METHODS ###			
 
@@ -17,7 +17,7 @@ class Evaluate:
 		or
 			- kwargs : a dictionary ; for every key, provides the value of the propositional or predicate variable with that name
 				if proposition, the value must be boolean
-				if n-ary predicate, value must be a boolean numpy array with size (options.dom_quant)^n
+				if n-ary predicate, value must be a boolean numpy array with size (formula_options.dom_quant)^n
 	"""
 	def evaluate(self, **kwargs):
 
@@ -40,7 +40,7 @@ class Evaluate:
 
 				deps = vm.preds[idx]
 
-				for t in itertools.product(range(options.dom_quant), repeat = deps):
+				for t in itertools.product(range(formula_options.dom_quant), repeat = deps):
 					i = vm.index(idx, t)
 					assignment[i] = utils.get(val, t)
 
@@ -56,6 +56,7 @@ class Evaluate:
 
 
 	def evaluate_aux(self, assignment, vm, variables = dict()):
+		raise Exception("evaluate_aux has not been implemented for the current type of formula")
 
 
 		if self.type == "and":
@@ -65,6 +66,5 @@ class Evaluate:
 		elif self.type == "not":
 			return np.logical_not(self.children[0].evaluate_aux(assignment, vm, variables))
 
-		raise Exception("evaluate_aux has not been implemented for the current type of formula")
 
 
