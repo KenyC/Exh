@@ -4,9 +4,9 @@ setup.py
 Exh.egg-info/PKG-INFO
 Exh.egg-info/SOURCES.txt
 Exh.egg-info/dependency_links.txt
-Exh.egg-info/not-zip-safe
 Exh.egg-info/requires.txt
 Exh.egg-info/top_level.txt
+Exh.egg-info/zip-safe
 exh/__init__.py
 exh/alternatives.py
 exh/exceptions.py

@@ -1,8 +1,8 @@
 from setuptools import setup
 
 setup(name             = "Exh",
-      version          = "0.2",
-      description      = "Computes innocent exclusion/inclusions exhaustivity using minimal worlds",
+      version          = "0.3",
+      description      = "Computes innocent exclusion/inclusions exhaustivity",
       url              = "http://github.com/KenyC/Exh",
       author           = "Keny Chatain",
       author_email     = "kchatain@mit.edu",
@@ -12,4 +12,4 @@ setup(name             = "Exh",
           "numpy",
           "IPython"
       ],
-      zip_safe         = False)
+      zip_safe         = True)
