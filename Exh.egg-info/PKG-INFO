@@ -1,7 +1,7 @@
 Metadata-Version: 1.0
 Name: Exh
-Version: 0.3
-Summary: Computes innocent exclusion/inclusions exhaustivity using minimal worlds
+Version: 0.4
+Summary: Computes innocent exclusion/inclusions exhaustivity
 Home-page: http://github.com/KenyC/Exh
 Author: Keny Chatain
 Author-email: kchatain@mit.edu

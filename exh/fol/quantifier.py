@@ -17,7 +17,7 @@ class Quantifier(prop.Formula):
 	latex_symbol = "Q"
 
 	def __init__(self, quant_var, scope):
-		super(Quantifier, self).__init__("quant", scope)
+		super(Quantifier, self).__init__(scope)
 		self.qvar = quant_var
 
 	def display_aux(self, latex):
