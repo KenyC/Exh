@@ -17,7 +17,7 @@ class Evaluate:
 		or
 			- kwargs : a dictionary ; for every key, provides the value of the propositional or predicate variable with that name
 				if proposition, the value must be boolean
-				if n-ary predicate, value must be a boolean numpy array with size (formula_options.dom_quant)^n
+				if n-ary predicate, value must be a boolean numpy array with size (options.dom_quant)^n
 	"""
 	def evaluate(self, **kwargs):
 
@@ -40,7 +40,7 @@ class Evaluate:
 
 				deps = vm.preds[idx]
 
-				for t in itertools.product(range(formula_options.dom_quant), repeat = deps):
+				for t in itertools.product(range(options.dom_quant), repeat = deps):
 					i = vm.index(idx, t)
 					assignment[i] = utils.get(val, t)
 

@@ -1,5 +1,7 @@
+import numpy as np
 from collections import defaultdict
 
+import exh.model.options as options
 import exh.prop as prop
 
 """

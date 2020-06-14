@@ -30,8 +30,8 @@ class Exhaust:
 		self.incl = False
 		self.excl = False
 
-		self.vm = VarManager.merge(prejacent.vm, *[alt.vm for alt in self.alts])
-		self.u = Universe(vm = self.vm)
+		self.vm = model.VarManager.merge(prejacent.vm, *[alt.vm for alt in self.alts])
+		self.u = model.Universe(vm = self.vm)
 
 
 	def innocently_excludable(self):
@@ -106,6 +106,9 @@ This class wraps the class Exhaust into a Formula object, so that it can be eval
 """
 class Exh(prop.Operator):
 
+	plain_symbol = "Exh"
+	latex_symbol = r"\textbf{Exh}"
+
 	substitutable = False
 	
 	def __init__(self, child, alts = None, scales = options.scales, subst = options.sub, ii = options.ii_on):
@@ -143,7 +146,7 @@ class Exh(prop.Operator):
 
 
 	def vars(self):
-		self.vm = VarManager.merge(self.children[0].vm, *[alt.vm for alt in self.alts])
+		self.vm = model.VarManager.merge(self.children[0].vm, *[alt.vm for alt in self.alts])
 		return self.vm
 
 	def diagnose(self):
