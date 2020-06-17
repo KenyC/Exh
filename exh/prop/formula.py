@@ -23,6 +23,10 @@ class Formula(IteratorType, Display, Evaluate): # Use sub-classing to spread cod
 		self.children = children
 		self.vars()
 
+		# Free vars are lexically ordered
+		self.free_vars = list(set(var for child in self.children for var in child.free_vars)) 
+		self.free_vars.sort()
+
 	def reinitialize(self): #only used for Exh, which performs computation at initialization
 		pass
 
@@ -50,26 +54,26 @@ class Formula(IteratorType, Display, Evaluate): # Use sub-classing to spread cod
 	def __eq__(self, other):
 		return self.__class__ is other.__class__
 
-		if self.__class__ is other.__class__:
-			if self.__class__ is Pred or self.__class__ is "neg":
-				return self.children[0] == other.children[0]
+		# if self.__class__ is other.__class__:
+		# 	if self.__class__ is Pred or self.__class__ is Not:
+		# 		return self.children[0] == other.children[0]
 
-			elif self.type == "or" or self.type == "and":
+		# 	elif self.type == "or" or self.type == "and":
 
-				other_children = list(other.children)
+		# 		other_children = list(other.children)
 				
-				for child1 in self.children:
+		# 		for child1 in self.children:
 					
-					matches = [i for i, child2 in enumerate(other_children) if child1 == child2]
+		# 			matches = [i for i, child2 in enumerate(other_children) if child1 == child2]
 
-					if matches:
-						other_children.pop(matches[0])
-					else:
-						return False
+		# 			if matches:
+		# 				other_children.pop(matches[0])
+		# 			else:
+		# 				return False
 
-				return True
-		else:
-			return False
+		# 		return True
+		# else:
+		# 	return False
 
 	
 	### FORMULA MANIPULATION METHODS ###
@@ -126,6 +130,8 @@ class Formula(IteratorType, Display, Evaluate): # Use sub-classing to spread cod
 		self.vm = var.VarManager.merge(*[c.vars() for c in self.children])
 		self.vm.linearize()
 		return self.vm
+
+
 
 ############### OPERATORS ##############
 
@@ -271,7 +277,11 @@ class Pred(Formula):
 
 		self.depends(*depends)
 
-		super(Pred, self).__init__(index)
+		self.idx = index
+		super(Pred, self).__init__()
+
+		self.free_vars = list(set(self.deps))
+		self.free_vars.sort()
 
 
 	def flatten(self):
@@ -292,9 +302,41 @@ class Pred(Formula):
 			return self.name + dep_string
 
 
-	def evaluate_aux(self, assignment, vm, variables = dict()):
-		value_slots = [variables[dep] for dep in self.deps]
-		return assignment[:, vm.index(self.idx, value_slots)]
+	def evaluate_aux(self, assignment, vm, variables = dict(), free_vars = list()):
+		# Not necessary to split by "free_vars", the empty case is just a speical case
+		# The split avoids generalizing to the worst case.
+		if not free_vars: 
+			value_slots = [variables[dep] for dep in self.deps]
+			return assignment[:, vm.index(self.idx, value_slots)]
+		else:
+			shape_output           = tuple(options.dom_quant for _ in free_vars)
+			vars_not_in_assignment = set(self.deps).difference(set(variables.keys()))
+
+			position_free_vars = np.full(len(free_vars), True)
+			for dep in vars_not_in_assignment: 
+				position_free_vars[free_vars.find(dep)] = False #Potential for exception if free_vars is misconfigured
+
+			value_slots    = np.full(len(self.deps), 0,     dtype = "int") 
+			mask_free_vars = np.full(len(self.deps), False, dtype = "bool") 
+
+			for i, dep in enumerate(self.deps):
+				if dep in variables:
+					value_slots[i]    = variables[dep]
+				else:
+					mask_free_vars[i] = True
+
+			output = np.full((len(assignment), *shape_output), True, dtype = "bool")
+			grid   = np.indices(shape_output) 
+
+			for index in np.ndindex(shape_output):
+				value_slots[mask_free_vars] = np.array(index)[position_free_vars]
+				output[:, *index] = assignment[:, vm.index(self.idx, value_slots)]
+
+			return output
+
+
+
+
 
 
 	def __call__(self, *variables):
@@ -317,10 +359,6 @@ class Pred(Formula):
 			self.vm = var.VarManager({self.idx: self.arity}, names = {self.name: self.idx})
 
 		return self.vm
-
-	@property
-	def idx(self):
-		return self.children[0]
 
 
 

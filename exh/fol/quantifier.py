@@ -20,6 +20,11 @@ class Quantifier(prop.Formula):
 		super(Quantifier, self).__init__(scope)
 		self.qvar = quant_var
 
+		try:
+			self.free_vars.remove(self.qvar)
+		except ValueError:
+			pass
+
 	def display_aux(self, latex):
 		return "{symb} {var}, {scope}".format(symb = self.__class__.latex_symbol if latex else self.__class__.plain_symbol,
 											 var   = self.qvar,
