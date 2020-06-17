@@ -50,26 +50,6 @@ class Formula(IteratorType, Display, Evaluate): # Use sub-classing to spread cod
 	def __eq__(self, other):
 		return self.__class__ is other.__class__
 
-		if self.__class__ is other.__class__:
-			if self.__class__ is Pred or self.__class__ is "neg":
-				return self.children[0] == other.children[0]
-
-			elif self.type == "or" or self.type == "and":
-
-				other_children = list(other.children)
-				
-				for child1 in self.children:
-					
-					matches = [i for i, child2 in enumerate(other_children) if child1 == child2]
-
-					if matches:
-						other_children.pop(matches[0])
-					else:
-						return False
-
-				return True
-		else:
-			return False
 
 	
 	### FORMULA MANIPULATION METHODS ###
@@ -180,7 +160,7 @@ class Operator(Formula):
 
 class And(Operator):
 	plain_symbol = "and"
-	latex_symbol = r"\wedge"
+	latex_symbol = r"\land"
 
 	"""docstring for And"""
 	def __init__(self, *children):
@@ -189,7 +169,7 @@ class And(Operator):
 
 class Or(Operator):
 	plain_symbol = "or"
-	latex_symbol = r"\vee"
+	latex_symbol = r"\lor"
 	
 	"""docstring for Or"""
 	def __init__(self, *children):
