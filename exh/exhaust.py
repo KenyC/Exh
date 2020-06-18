@@ -134,7 +134,7 @@ class Exh(prop.Operator):
 	# def display_aux(self):
 	# 	return "exh[{}]".format(self.children[0].display())
 
-	def evaluate_aux(self, assignment, vm, variables = dict()):
+	def evaluate_aux(self, assignment, vm, variables = dict(), free_vars = list()):
 
 		evaluanda = [self.children[0]] + self.evalSet
 		values = [f.evaluate_aux(assignment, vm, variables) for f in evaluanda]

@@ -30,9 +30,10 @@ class Quantifier(prop.Formula):
 											 var   = self.qvar,
 											 scope = self.children[0].display_aux(latex)) 
 
-	def evaluate_aux(self, assignment, vm, variables = dict()):
+	def evaluate_aux(self, assignment, vm, variables = dict(), free_vars = list()):
 		return self.fun(np.stack([self.children[0].evaluate_aux(assignment, vm, 
-		                                                        dict(variables, **{self.qvar: i})) 
+		                                                        dict(variables, **{self.qvar: i}),
+		                                                        free_vars) 
 		                         for i in range(options.dom_quant)],
 		                         axis = 0))
 

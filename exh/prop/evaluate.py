@@ -47,7 +47,7 @@ class Evaluate:
 			assignment = assignment[np.newaxis, :]
 
 
-		to_return = self.evaluate_aux(assignment, vm)
+		to_return = self.evaluate_aux(assignment, vm, free_vars = self.free_vars)
 
 		if all(dim == 1 for dim in to_return.shape) and not ("no_flattening" in kwargs and kwargs["no_flattening"]):
 			return np.asscalar(to_return)

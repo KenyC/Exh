@@ -124,8 +124,8 @@ class Operator(Formula):
 		super(Operator, self).__init__(*children)
 		self.fun = fun
 						
-	def evaluate_aux(self, assignment, vm, variables = dict()):
-		return self.fun(np.stack([child.evaluate_aux(assignment, vm, variables) for child in self.children]))
+	def evaluate_aux(self, assignment, vm, variables = dict(), free_vars = list()):
+		return self.fun(np.stack([child.evaluate_aux(assignment, vm, variables, free_vars) for child in self.children]))
 
 
 	def display_aux(self, latex):
@@ -201,7 +201,7 @@ class Truth(Formula):
 	def __init__(self):
 		super(Truth, self).__init__()
 
-	def evaluate_aux(self, assignment, vm, variables = dict()):
+	def evaluate_aux(self, assignment, vm, variables = dict(), free_vars = list()):
 		return np.ones(assignment.shape[0], dtype = "bool")
 
 	def display_aux(self, latex):
@@ -216,7 +216,7 @@ class Falsity(Formula):
 	def __init__(self):
 		super(Falsity, self).__init__()
 
-	def evaluate_aux(self, assignment, vm, variables = dict()):
+	def evaluate_aux(self, assignment, vm, variables = dict(), free_vars = list()):
 		return np.zeros(assignment.shape[0], dtype = "bool")
 
 	def display_aux(self, latex):
@@ -260,9 +260,12 @@ class Pred(Formula):
 		self.idx = index
 		super(Pred, self).__init__()
 
-		self.free_vars = list(set(self.deps))
-		self.free_vars.sort()
+		self.free_vars = self.free_vars_
 
+	@property
+	def free_vars_(self):
+		return sorted(set(self.deps))
+	
 
 	def flatten(self):
 		return self
@@ -289,12 +292,16 @@ class Pred(Formula):
 			value_slots = [variables[dep] for dep in self.deps]
 			return assignment[:, vm.index(self.idx, value_slots)]
 		else:
+			""" 
+			P(x, y, z)
+			The value of some of these variables are provided by assignment, others are left free
+			"""
 			shape_output           = tuple(options.dom_quant for _ in free_vars)
 			vars_not_in_assignment = set(self.deps).difference(set(variables.keys()))
 
-			position_free_vars = np.full(len(free_vars), True)
+			position_free_vars = np.full(len(free_vars), False)
 			for dep in vars_not_in_assignment: 
-				position_free_vars[free_vars.find(dep)] = False #Potential for exception if free_vars is misconfigured
+				position_free_vars[free_vars.index(dep)] = True #Potential for exception if free_vars is misconfigured
 
 			value_slots    = np.full(len(self.deps), 0,     dtype = "int") 
 			mask_free_vars = np.full(len(self.deps), False, dtype = "bool") 
@@ -306,11 +313,11 @@ class Pred(Formula):
 					mask_free_vars[i] = True
 
 			output = np.full((len(assignment), *shape_output), True, dtype = "bool")
-			grid   = np.indices(shape_output) 
 
-			for index in np.ndindex(shape_output):
-				value_slots[mask_free_vars] = np.array(index)[position_free_vars]
-				output[:, *index] = assignment[:, vm.index(self.idx, value_slots)]
+			for indices in np.ndindex(shape_output):
+				value_slots[mask_free_vars] = np.array(indices)[position_free_vars]
+				indexing                    = slice(len(assignment)), *indices
+				output[indexing]            = assignment[:, vm.index(self.idx, value_slots)]
 
 			return output
 
