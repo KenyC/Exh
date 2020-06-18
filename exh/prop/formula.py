@@ -284,7 +284,7 @@ class Pred(Formula):
 		else:
 			return self.name + dep_string
 
-
+	@profile
 	def evaluate_aux(self, assignment, vm, variables = dict(), free_vars = list()):
 		# Not necessary to split by "free_vars", the empty case is just a speical case
 		# The split avoids generalizing to the worst case.
