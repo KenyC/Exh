@@ -75,8 +75,8 @@ class Universe:
 		output = self.evaluate(f1, f2)
 		return np.all(output[:, 0] == output[:, 1])
 
-	def evaluate(self, *fs):
-		return np.transpose(np.stack([f.evaluate(assignment = self.worlds, vm = self.vm) for f in fs]))
+	def evaluate(self, *fs, **kwargs):
+		return np.transpose(np.stack([f.evaluate(assignment = self.worlds, vm = self.vm, **kwargs) for f in fs]))
 
 
 	""" 
@@ -125,12 +125,12 @@ class Universe:
 		self.n = self.vm.n
 		self.worlds = utils.getAssignment(n)
 
-	def truth_table(self, *fs):
+	def truth_table(self, *fs, **kwargs):
 
 
 		output = self.evaluate(*fs)
 
-		table = Table()
+		table = Table(**kwargs)
 		nvars = self.worlds.shape[1]
 		nworlds = self.worlds.shape[0]
 

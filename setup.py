@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name             = "Exh",
-      version          = "0.5",
+      version          = "0.6",
       description      = "Computes innocent exclusion/inclusions exhaustivity",
       url              = "http://github.com/KenyC/Exh",
       author           = "Keny Chatain",

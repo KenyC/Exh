@@ -38,7 +38,7 @@ class Exhaust:
 
 		evalSet = [~f for f in self.alts]
 
-		worldsPrejacent = self.u.evaluate(self.p).reshape(2 ** self.u.n)
+		worldsPrejacent = np.squeeze(self.u.evaluate(self.p, no_flattening = True), axis = 1)
 		uPrejacent = self.u.restrict(worldsPrejacent)
 
 		if evalSet:
@@ -62,7 +62,7 @@ class Exhaust:
 		evalNegSet = [~f for f in self.innocently_excl] + [self.p]
 		evalPosSet = [f for i,f in enumerate(self.alts) if not self.innocently_excl_indices[i]]
 
-		worldsStengthenedPrejacent = np.prod(self.u.evaluate(*evalNegSet), axis = 1,dtype = "bool")
+		worldsStengthenedPrejacent = np.prod(self.u.evaluate(*evalNegSet, no_flattening = True), axis = 1,dtype = "bool")
 		uSPrejacent = self.u.restrict(worldsStengthenedPrejacent)
 		
 		if evalPosSet:
