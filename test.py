@@ -227,7 +227,7 @@ header("INNOCENT INCLUSION")
 
 
 conj = Exh(a | b, scales = [], ii = True) # ii parameter for innocent inclusion
-prop_universe.equivalent(conj, a & b)
+assert(prop_universe.equivalent(conj, a & b))
 
 fc_ii = Exh(Ex > p1 | p2, ii = True) # Automatic alternatives
 

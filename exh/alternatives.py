@@ -32,7 +32,7 @@ focus on the sets S of proposition which are all the propositions true in some w
 return the maximal sets of S
 """
 def find_maximal_sets(universe, props):
-	truth_table = universe.evaluate(*props)
+	truth_table = universe.evaluate(*props, no_flattening = True)
 	maximal_sets = []
 
 	# for every world,
@@ -47,8 +47,7 @@ def find_maximal_sets(universe, props):
 			maximal_sets = [m for m in maximal_sets if not entails(m, s)]
 			maximal_sets.append(s)
 
-	
-	return np.array(maximal_sets, dtype = "bool")
+	return np.stack(maximal_sets)
 
 # Performs simple heuristics to simplify a formula: such as "A or A" is "A" ; "A and A" is "A"
 def simplify_alt(alt):
