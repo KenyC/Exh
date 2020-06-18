@@ -5,12 +5,24 @@ from IPython.core.display import display, HTML
 def to_str_list(list_vars):
 	return list(map(str, list_vars))
 
-"""
-Helper class to draw tables in HTML
-"""
 class Table:
+	"""
+	Helper class to draw tables in HTML and plain text
 
-	HLINE = 0
+	Attributes:
+		options (dict)
+			html (bool)   -- whether to use HTML display or not
+			char_col      -- in plain display, character for plain column
+			char_bold_col -- in plain display, character for emphasized column
+			char_line     -- in plain display, character for line
+			row_lines     -- in plain display, whether to insert lines between every row
+
+		header      (list[str])   -- list of cells in header
+		rows        (list[list])  -- list of rows ; each row is either a list of strings of the constant HLINE (for horizontal lines)
+		strong_col  (list[int])   -- list of indices of vertical lines to display bold (0 means before first column, n_cols means after last_column)
+ 	"""
+
+	HLINE = 0 # Constant to reprensent line in 
 	style ="""
 	border: 1px solid black; 
     border-collapse: collapse;
@@ -18,6 +30,7 @@ class Table:
 	"""
 
 	def __init__(self, **kwargs):
+		"""kwargs update class options"""
 
 		self.options = {"html": True, "char_col": "|", "char_bold_col": "#", "char_line": "-", "row_lines": False}
 		self.options.update(kwargs)
@@ -27,7 +40,10 @@ class Table:
 		self.header = None
 
 
+
+
 	def set_header(self, list_header):
+		""" Set table header to "list_header" argument """
 		self.header = to_str_list(list_header)
 
 	def add_row(self, row):
@@ -42,6 +58,9 @@ class Table:
 	def insert_hline(self):
 		self.rows.append(Table.HLINE)
 
+
+
+
 	def print(self, html = None):
 		if html is None:
 			html = self.options["html"]
@@ -49,7 +68,7 @@ class Table:
 		if html:
 			self.print_html()
 		else:
-			self.print_console()
+			self.print_plain()
 
 	def print_html(self):
 
@@ -89,7 +108,7 @@ class Table:
 
 		display(HTML(self.cache))
 
-	def print_console(self):
+	def print_plain(self):
 		self.cache = ""
 
 		def pad(string, width):

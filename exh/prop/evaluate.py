@@ -7,19 +7,27 @@ import exh.model.options as options
 ### EVALUATION METHODS ###			
 
 class Evaluate:
-	"""
-	Evaluate the formula with respect to an assignment of values to the propositional and predicate variable
-
-	Arguments:
-		- vm (optional, default = self.vm) : a variable manager for the variables in the formula
-		either
-			- assignment : a boolean numpy array ; at index i, is the value for the independent variable with index i according to vm
-		or
-			- kwargs : a dictionary ; for every key, provides the value of the propositional or predicate variable with that name
-				if proposition, the value must be boolean
-				if n-ary predicate, value must be a boolean numpy array with size (options.dom_quant)^n
-	"""
+	
 	def evaluate(self, **kwargs):
+		"""
+		Evaluate the formula with respect to an assignment of values to the propositional and predicate variable
+
+		Arguments:
+			vm (VarManager, default = self.vm) -- a variable manager for the variables in the formula
+			either
+				assignment (np.ndarray[bool]) -- at index i, is the value for the independent variable with index i according to vm
+			or
+				kwargs (dict) -- for every key, provides the value of the propositional or predicate variable with that name
+					if proposition, the value must be boolean
+					if n-ary predicate, value must be a boolean numpy array with size (options.dom_quant)^n
+			no_flattening (bool, default = False) -- prevent automatic flattening of result if the result is one-dimensional
+
+		Returns:
+			np.ndarray[bool] -- Boolean array of shape (n_assignment, dom_quant, ..., dom_quant) specifying for each assignment and values given to free variables
+			                                                         <---number of free vars-->
+		or 
+			bool -- if the latter result is single dimensional
+		"""
 
 		if "vm" in kwargs:
 			vm = kwargs["vm"]
@@ -55,16 +63,22 @@ class Evaluate:
 			return to_return
 
 
-	def evaluate_aux(self, assignment, vm, variables = dict()):
+	def evaluate_aux(self, assignment, vm, variables = dict(), free_vars = list()):
+		"""
+		Auxiliary method for recursion ; evaluates sub-formula (to be overridden by children classes)
+		
+		Arguments:
+			assignment (numpy.ndarray[bool]) -- each line specifies a different assignmen of bit positions to truth values # TODO: rename to worlds
+			vm         (VariableManager)     -- variable manager mapping predicate and variable names to bit positions
+			variables  (dict[str, int])      -- local assignment of values to variables
+			free_vars  (list[str])           -- variables left free in the matrix formula (the formula on which "evaluate" was called)
+		
+		Returns:
+		   np.ndarray[bool] -- Boolean array of shape (n_assignment, dom_quant, ..., dom_quant) specifying for each assignment and values given to free variables
+		                                                             <---number of free vars-->
+		"""
 		raise Exception("evaluate_aux has not been implemented for the current type of formula")
 
-
-		if self.type == "and":
-			return np.min(np.stack([child.evaluate_aux(assignment, vm, variables) for child in self.children]), axis = 0)
-		elif self.type == "or":
-			return np.max(np.stack([child.evaluate_aux(assignment, vm, variables) for child in self.children]), axis = 0)
-		elif self.type == "not":
-			return np.logical_not(self.children[0].evaluate_aux(assignment, vm, variables))
 
 
 

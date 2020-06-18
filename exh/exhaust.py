@@ -12,12 +12,19 @@ import exh.options as options
 
 
 
-"""
-This class orchestrates the computation of exhaustification.
-
-It computes the alternatives, if they are not provided ; it performs IE and II on them
-"""
 class Exhaust:
+	"""
+	This class orchestrates the computation of exhaustification.
+	It computes the alternatives, if they are not provided ; it performs IE and II on them
+
+	Attributes:
+		p    (Formula)         -- the prejacent
+		alts (list[Formula])   -- the alternatives
+		incl (bool)            -- whether IE exhaustification has been computed yet
+		incl (bool)            -- whether II exhaustification has been computed yet
+		vm   (VariableManager) 
+		u    (Universe) 
+	"""
 	
 	
 	def __init__(self, prejacent, alts = None, scales = options.scales, subst = options.sub):
@@ -79,7 +86,7 @@ class Exhaust:
 		return self.innocently_incl
 
 	def diagnose(self):
-
+		"""Diplay pertinent information regarding the results of the computation such as maximal sets, IE alternatives, II alternatives"""
 		def colon_sep_fs(fs):
 			str_fs = [str(f) for f in fs]
 			return "; ".join(str_fs) 
@@ -101,10 +108,13 @@ class Exhaust:
 			jprint("Innocently includable:", colon_sep_fs(self.innocently_incl))
 		jprint()
 
-"""
-This class wraps the class Exhaust into a Formula object, so that it can be evaluated like any Formula object
-"""
 class Exh(prop.Operator):
+	"""
+	This class wraps the class Exhaust into a Formula object, so that it can be evaluated like any Formula object
+
+	Attributes:
+		e (Exhaust) -- the object Exhaust that performs the actual computation
+	"""
 
 	plain_symbol = "Exh"
 	latex_symbol = r"\textbf{Exh}"
@@ -131,8 +141,6 @@ class Exh(prop.Operator):
 		self.evalSet = [~f for f in self.ieSet] + [f for f in self.iiSet]
 
 
-	# def display_aux(self):
-	# 	return "exh[{}]".format(self.children[0].display())
 
 	def evaluate_aux(self, assignment, vm, variables = dict()):
 
