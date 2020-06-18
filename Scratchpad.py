@@ -12,13 +12,34 @@ from exh import *
 
 # %%
 
-a = Pred(1, name = "a", depends = "x")
-b = Pred(2, name = "b", depends = "x")
-
 
 # %%
 
+<<<<<<< HEAD
 print(((Ex > a("y")) & b).free_vars)
 
+=======
+f1 = Exh(Universe(fs = [a, b]), alts=[b])
+print(f1)
+>>>>>>> master
+
+# %%
+
+a.evaluate(assignment = [True], vm =a.vm)
+
+# %%
+f = Exh(a | b , alts = [a, b, a & b])
+
+# 
+u = Universe(fs = [a, b])
+u.truth_table(f, html = False)
+
+# %%
+f.e.u.evaluate(f.e.p).shape
+
+# %%
+from exh import alternatives
+
+alternatives.find_maximal_sets(Universe(f = a), [a])
 
 # %%

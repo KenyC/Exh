@@ -49,7 +49,7 @@ class Evaluate:
 
 		to_return = self.evaluate_aux(assignment, vm)
 
-		if all(dim == 1 for dim in to_return.shape):
+		if all(dim == 1 for dim in to_return.shape) and not ("no_flattening" in kwargs and kwargs["no_flattening"]):
 			return np.asscalar(to_return)
 		else:
 			return to_return
