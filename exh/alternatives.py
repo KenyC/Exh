@@ -25,7 +25,7 @@ constructors = {"And":         lambda pre: And(*pre.children),
 
 
 
-def find_maximal_sets(universe, props):
+def find_maximal_sets(universe, props, variables = None):
 	"""
 	Given a set of worlds and a set of propositions, this method returns the maximal sets of propositions that are consistent with one another
 
@@ -38,7 +38,8 @@ def find_maximal_sets(universe, props):
 		props (list[Formula]) -- set of propositions to use
 
 	"""
-	truth_table = universe.evaluate(*props, no_flattening = True)
+	kwargs = {} if variables is None else {"variables" : variables}
+	truth_table = universe.evaluate(*props, no_flattening = True, **kwargs)
 	maximal_sets = []
 
 	# for every world,

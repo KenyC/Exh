@@ -1,5 +1,8 @@
-import exh.model.vars as var
-import exh.utils      as utils
+import numpy as np
+
+import exh.model.vars     as var
+import exh.utils          as utils
+import exh.model.options  as options
 
 from .formula import Formula
 

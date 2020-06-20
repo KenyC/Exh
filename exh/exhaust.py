@@ -1,6 +1,5 @@
 import numpy as np
 
-
 # This is a circular import ; better import it at runtime
 import exh.alternatives as alternatives
 import exh.model        as model
@@ -34,25 +33,30 @@ class Exhaust:
 		else:
 			self.alts = alts
 
+		self.free_vars = set(self.p.free_vars)
+		for alt in self.alts:
+			self.free_vars.union(set(alt.free_vars))
+
+		self.dummy_vals = {var: 0 for var in self.free_vars}
+
 		self.incl = False
 		self.excl = False
 
-		self.vm = model.VarManager.merge(prejacent.vm, *[alt.vm for alt in self.alts])
-		self.u = model.Universe(vm = self.vm)
+		self.vm = model.VarManager.merge(prejacent.vm, *(alt.vm for alt in self.alts))
+		self.u  = model.Universe(vm = self.vm)
 
 
 	def innocently_excludable(self):
 
 		evalSet = [~f for f in self.alts]
-
-		worldsPrejacent = np.squeeze(self.u.evaluate(self.p, no_flattening = True), axis = 1)
+		worldsPrejacent = np.squeeze(self.u.evaluate(self.p, no_flattening = True, 
+		                                                     variables = self.dummy_vals), # give free variables dummy values
+		                             axis = 1) 
 		uPrejacent = self.u.restrict(worldsPrejacent)
 
 		if evalSet:
-			self.maximalExclSets         = alternatives.find_maximal_sets(uPrejacent, evalSet)
+			self.maximalExclSets         = alternatives.find_maximal_sets(uPrejacent, evalSet, variables = self.dummy_vals)
 			self.innocently_excl_indices = np.prod(self.maximalExclSets, axis = 0, dtype = "bool")
-
-			# self.innocently_excl = [f for i,f in enumerate(self.alts) if self.innocently_excl_indices[i] == True]
 		else:
 			self.maximalExclSets         = []
 			self.innocently_excl_indices = []
@@ -68,11 +72,16 @@ class Exhaust:
 		evalNegSet = [~f for f, excludable in zip(self.alts, self.innocently_excl_indices) if excludable] + [self.p]
 		evalPosSet = [ f for f, excludable in zip(self.alts, self.innocently_excl_indices) if not excludable]
 
-		worldsStengthenedPrejacent = np.prod(self.u.evaluate(*evalNegSet, no_flattening = True), axis = 1, dtype = "bool")
+		worldsStengthenedPrejacent = np.prod(self.u.evaluate(*evalNegSet, no_flattening = True,
+		                                                                  variables = self.dummy_vals),
+		                                     axis = 1, 
+		                                     dtype = "bool")
+
+
 		uSPrejacent = self.u.restrict(worldsStengthenedPrejacent)
 		
 		if evalPosSet:
-			maximalSets = alternatives.find_maximal_sets(uSPrejacent, evalPosSet)
+			maximalSets = alternatives.find_maximal_sets(uSPrejacent, evalPosSet, variables = self.dummy_vals)
 
 			# The maximal sets only refer to positions in the set of non-excludable alternatives
 			self.maximalInclSets = np.full((len(maximalSets), len(self.alts)), False, dtype = "bool")
