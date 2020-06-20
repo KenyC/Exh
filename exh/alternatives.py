@@ -35,11 +35,11 @@ def find_maximal_sets(universe, props, variables = None):
 
 	Arguments:
 		universe (Universe)
-		props (list[Formula]) -- set of propositions to use
+		props (list[Formula]) -- set of propositions to compute the maximal sets of
 
 	"""
-	kwargs = {} if variables is None else {"variables" : variables}
-	truth_table = universe.evaluate(*props, no_flattening = True, **kwargs)
+	kwargs       = {} if variables is None else {"variables" : variables}
+	truth_table  = universe.evaluate(*props, no_flattening = True, **kwargs)
 	maximal_sets = []
 
 	# for every world,
@@ -54,7 +54,7 @@ def find_maximal_sets(universe, props, variables = None):
 			maximal_sets = [m for m in maximal_sets if not entails(m, s)]
 			maximal_sets.append(s)
 
-	return np.stack(maximal_sets)
+	return np.stack(maximal_sets) #if maximal_sets else np.full((0, 0), True, dtype = "bool")
 
 
 

@@ -54,7 +54,7 @@ class Exhaust:
 		                             axis = 1) 
 		uPrejacent = self.u.restrict(worldsPrejacent)
 
-		if evalSet:
+		if evalSet and uPrejacent.n_worlds != 0:
 			self.maximalExclSets         = alternatives.find_maximal_sets(uPrejacent, evalSet, variables = self.dummy_vals)
 			self.innocently_excl_indices = np.prod(self.maximalExclSets, axis = 0, dtype = "bool")
 		else:
@@ -80,7 +80,7 @@ class Exhaust:
 
 		uSPrejacent = self.u.restrict(worldsStengthenedPrejacent)
 		
-		if evalPosSet:
+		if evalPosSet  and uSPrejacent.n_worlds != 0:
 			maximalSets = alternatives.find_maximal_sets(uSPrejacent, evalPosSet, variables = self.dummy_vals)
 
 			# The maximal sets only refer to positions in the set of non-excludable alternatives
