@@ -4,13 +4,14 @@ from collections import defaultdict
 import exh.model.options as options
 import exh.prop as prop
 
-"""
-Abstract class for quantified formula
-Attributes:
-	- symbol : display symbol (obsolete)
-	- qvar: string name of the individual variable of quantification
-"""
 class Quantifier(prop.Formula):
+	"""
+	Abstract class for quantified formula
+
+	Attributes:
+		symbol -- display symbol (obsolete)
+		qvar   -- string name of the individual variable of quantification
+	"""
 
 	substitutable = False
 	plain_symbol = "Q"
@@ -77,23 +78,26 @@ class Existential(Quantifier):
 	def fun(self, results):
 		return np.max(results, axis = 0)
 
-"""
-The following baroque construction allows us to write quantifierd formula in parenthesis-free way:
-Ax > Ey > a | b
-To do this, we twist Python in ways that are not recommendable for other purposes.
-Reasonable usage of the library should not incur any problems.
-
-The class C is such that "C() > formula37" will return a formula built from "formula37" using function cons
-"""
 class C:
+	"""
+	The following baroque construction allows us to write quantifierd formula in parenthesis-free way:
+	Ax > Ey > a | b
+	To do this, we twist Python in ways that are not recommendable for other purposes.
+	Reasonable usage of the library should not incur any problems.
+
+	The class C is such that "C() > formula37" will return a formula built from "formula37" using function cons
+	"""
+
 	def __init__(self, function):
 		self.cons = function
 		self.bup = function
 
 	def __gt__(self, other): 
-		# In python, A > B > C is evaluated as (A > B) and (B > C) ; 
-		# this is not the semantics we want so we allow A>B to change the value of B before evaluation in conjunct (B>C)
-		# This is highly unorthodox ; don't try at home
+		"""
+		In python, A > B > C is evaluated as (A > B) and (B > C) ; 
+		this is not the semantics we want so we allow A>B to change the value of B before evaluation in conjunct (B>C)
+		This is highly unorthodox ; don't try this at home
+		"""
 		return_val = True
 		if isinstance(other, prop.Formula):
 			return_val = self.cons(other)
@@ -106,21 +110,11 @@ class C:
 
 		
 
-# Returns a C class from a formula constructor
 def quantifier_cons(constructor):
+	""" Returns a C class from a formula constructor """
 	def f(var):
 		return C(lambda formula: constructor(var, formula))
 
 	return f
 
-A = quantifier_cons(Universal)
-E = quantifier_cons(Existential)
 
-Ax = A("x")
-Ex = E("x")
-
-Ay = A("y")
-Ey = E("y")
-
-Az = A("z")
-Ez = E("z")

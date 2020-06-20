@@ -1,20 +1,21 @@
 from . import options
 from . import exceptions
 
-"""
-VarManager keeps track of all independent variables in a given system.
-Maps propositional variables and fully saturated predicate variables to indices
-
-Example: 
-System: unary predicate p and proposition q; domain of individuals = 3
-Values: p(0) p(1) p(2) q
-are mapped to
-Indices: 0    1    2   3
-"""
 class VarManager:
 	"""
-	- pred: a dictionary mapping predicate indices to size in bits
-	- names: a dictionary mapping predicate names to their indices
+	VarManager keeps track of all independent variables in a given system.
+	Maps propositional variables and fully saturated predicate variables to indices
+
+	Example: 
+	System: unary predicate p and proposition q; domain of individuals = 3
+	Values: p(0) p(1) p(2) q
+	are mapped to
+	Indices: 0    1    2   3
+	
+	Attributes
+	preds             -- a dictionary mapping predicate names to the variables they depend on
+	pred_to_vm_index  -- a dictionary mapping predicate names to their indices
+	names             -- a dictionary mapping predicate names to their indices
 	"""
 	def __init__(self, preds, names = dict()):
 		self.preds = preds 
@@ -25,10 +26,14 @@ class VarManager:
 		self.linearize()
 
 	def linearize(self):
-		# How many independent boolean values to specify the propositional variables.
-		# propositions: 1 i
-		# unary predicate: dom_quant
-		# etc
+		"""
+		How many independent boolean values to specify the propositional variables.
+
+		propositions: 1 i
+		unary predicate: dom_quant
+		etc
+		"""
+
 		self.memory = [options.dom_quant ** ndeps  for _, ndeps in self.preds.items()]
 		
 		# position in memory of bits devoted to a parcitular predicate
@@ -42,6 +47,9 @@ class VarManager:
 
 	@property
 	def n(self):
+		"""
+		Number of bits required to specify an assignment 
+		"""
 		return sum(self.memory)
 
 	def index(self, pred, value_slots):

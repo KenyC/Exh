@@ -10,7 +10,9 @@ def header(title):
 # %%
 header("IMPORTS")
 from exh import *
-from exh.utils import jprint # for fancy displays
+from exh.model import options # for fancy displays
+
+options.latex_display = False
 
 
 # %%
@@ -26,7 +28,7 @@ Pred(2, name = "er", depends = "x")
 
 a | b
 a & b
-jprint(a | (~a & b))
+print(a | (~a & b))
 
 
 d = Pred(4, name = "d")
@@ -38,7 +40,7 @@ e.depends("x", "y")
 
 
 f4 = A("x") > d
-jprint(f4)
+print(f4)
 A("x") > Ey > e 
 f5 = Ax > Ey > e("y", "x")
 
@@ -114,7 +116,7 @@ value = prop_universe.equivalent(~a | ~c,
 assert(value)
 
 quant_universe = Universe(fs = [Ex > d])
-quant_universe.truth_table((Ex > d) & ~(Ax > d))
+quant_universe.truth_table((Ex > d) & ~(Ax > d), html = False)
 
 
 # %%

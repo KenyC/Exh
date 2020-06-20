@@ -25,13 +25,19 @@ constructors = {"And":         lambda pre: And(*pre.children),
 
 
 
-"""
-Given a set of worlds and a set of propositions, this method returns the maximal sets of propositions that are consistent with one another
-Algorithm:
-focus on the sets S of proposition which are all the propositions true in some world
-return the maximal sets of S
-"""
 def find_maximal_sets(universe, props):
+	"""
+	Given a set of worlds and a set of propositions, this method returns the maximal sets of propositions that are consistent with one another
+
+	Algorithm:
+	focus on the sets S of proposition which are all the propositions true in some world
+	return the maximal sets of S
+
+	Arguments:
+		universe (Universe)
+		props (list[Formula]) -- set of propositions to use
+
+	"""
 	truth_table = universe.evaluate(*props, no_flattening = True)
 	maximal_sets = []
 
@@ -49,22 +55,27 @@ def find_maximal_sets(universe, props):
 
 	return np.stack(maximal_sets)
 
-# Performs simple heuristics to simplify a formula: such as "A or A" is "A" ; "A and A" is "A"
+
+
+
+
 def simplify_alt(alt):
+	"""Performs simple heuristics to simplify a formula: such as "A or A" is "A" ; "A and A" is "A" """
 	if isinstance(alt, Or) or isinstance(alt, And):
 		if len(alt.children) == 2 and alt.children[0] == alt.children[1]:
 			return alt.children[0]
 	return alt
 
-# Applies "simplify_alt" to a list
 def simplify_alts(alts):
+	"""Applies "simplify_alt" to a list"""
 	return list(map(simplify_alt, alts))
 
 
-"""
-Return alternatives to a formula following a Katzirian algorithm
-"""
+
+
+
 def alt_aux(p, scales, subst):
+	"""Return alternatives to a formula following a Sauerland-esque algorithm"""
 
 	if isinstance(p, Pred):
 		return [p]
@@ -94,8 +105,8 @@ def alt_aux(p, scales, subst):
 	else:
 		return children_replacement + scale_replacement
 
-# Simplifies the result of alt_aux for efficiency
 def alt(p, scales = [], subst = False):
+	"""Simplifies the result of alt_aux for efficiency"""
 	return remove_doubles(simplify_alts(alt_aux(p, scales, subst)))
 
 

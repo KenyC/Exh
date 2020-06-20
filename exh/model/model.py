@@ -7,12 +7,27 @@ from .vars import VarManager
 from exh.utils.table import Table
 # from formula import Var
 
-"""
-Universe generates a set of worlds for a formula, a set of formulas, or an index
-"""
 class Universe:
+	"""	
+	Universe generates a set of assignments of truth-values for every predicate (i.e. a world).
+	The assigments either cover all the logical space.or just some logical possibilities
+
+	Attributes:
+	n      -- number of bits that specify the world (example: propositional varaible a requires 1 bit, unary predicates a(x) as many bits as there are individuaks)
+	worlds -- numpy boolean array worlds[i, j] specifies the truth-value of the j-th bit at the i-th world
+	vm     -- variable manager ; specifies a mapping from predicates to bit position (example: predicate variable "a" is mapped to "x")
+	
+	Properties:
+	n_worlds -- number of worlds in universe
+	"""
 
 	def __init__(self, **kwargs):
+		"""
+		Keyword arguments:
+		f  -- one formula from which to extract the predicates
+		vm -- a variable manager object
+		fs -- a list of formulas from which to ex
+		"""
 		
 		if "f" in kwargs:
 			self.vm = kwargs["f"].vm
@@ -69,6 +84,7 @@ class Universe:
 
 
 	def entails(self, f1, f2):
+		"""Checks if f1 entails f2 in universe"""
 		return not self.consistent(f1 & ~f2)
 
 	def equivalent(self, f1, f2):
@@ -76,13 +92,20 @@ class Universe:
 		return np.all(output[:, 0] == output[:, 1])
 
 	def evaluate(self, *fs, **kwargs):
+		"""
+		Evaluate formules against every world in universe
+		"""
+
 		return np.transpose(np.stack([f.evaluate(assignment = self.worlds, vm = self.vm, **kwargs) for f in fs]))
 
 
-	""" 
-	Gives meaningful names to worlds, depending on which predicates they set
-	"""
 	def name_worlds(self):
+		"""
+		Returns list of meaningful names to bits, depending on which predicates they set true
+
+		e.g. if Universe is for unary predicate "a", an propositional variable "b" will return
+		["a", "b(0)", "b(1)", "b(2)"]
+		"""
 
 		def str_tuple(tuple):
 			return "({})".format(",".join(list(map(str, t))))
@@ -117,6 +140,8 @@ class Universe:
 	
 
 	def restrict(self, indices):
+		"""Returns Universe object restricted to the worlds with indices in "indices" argument"""
+
 		return Universe(vm = self.vm, worlds = self.worlds[indices])
 
 
@@ -126,7 +151,7 @@ class Universe:
 		self.worlds = utils.getAssignment(n)
 
 	def truth_table(self, *fs, **kwargs):
-
+		"""Display a truth-table for formulas fs. Keyword arguments are passed to table (cf exh.utils.table)"""
 
 		output = self.evaluate(*fs)
 
@@ -136,26 +161,6 @@ class Universe:
 
 		# We find the names for the columns
 		name_cols = self.name_worlds() + [str(f) for f in fs]
-		# name_vars = ["A{}".format(key) for key in self.vm.preds.keys()]
-		# for name, var_idx in self.vm.names.items():
-		# 	vm_index = self.vm.pred_to_vm_index[var_idx]
-		# 	name_vars[vm_index] = name
-
-		# vm_idx_to_deps = list(self.vm.preds.values())
-
-		# for i, offset in enumerate(self.vm.offset):
-		# 	ndeps = vm_idx_to_deps[i]
-			
-		# 	if ndeps != 0:
-			
-		# 		for t in itertools.product(range(options.dom_quant), repeat = ndeps):
-		# 			i_col = offset + sum(val * options.dom_quant ** j for j, val in enumerate(t))
-		# 			name_cols[i_col] = name_vars[i] + str_tuple(t)
-
-		# 	else:
-		# 		name_cols[offset] = name_vars[i]
-
-
 		table.set_header(name_cols)
 
 		# self.worlds: nworlds x nvars
