@@ -49,64 +49,77 @@ class Exhaust:
 		uPrejacent = self.u.restrict(worldsPrejacent)
 
 		if evalSet:
-			maximalSets = alternatives.find_maximal_sets(uPrejacent, evalSet)
-			self.maximalExclSets = [[evalSet[i].children[0] for i,b in enumerate(setE) if b] for setE in maximalSets]
+			self.maximalExclSets         = alternatives.find_maximal_sets(uPrejacent, evalSet)
+			self.innocently_excl_indices = np.prod(self.maximalExclSets, axis = 0, dtype = "bool")
 
-			self.innocently_excl_indices = np.prod(maximalSets, axis = 0, dtype = "bool")
-			self.innocently_excl = [f for i,f in enumerate(self.alts) if self.innocently_excl_indices[i] == True]
+			# self.innocently_excl = [f for i,f in enumerate(self.alts) if self.innocently_excl_indices[i] == True]
 		else:
-			self.maximalExclSets = []
-			self.innocently_excl = []
+			self.maximalExclSets         = []
+			self.innocently_excl_indices = []
 
 		self.excl = True
-		return self.innocently_excl
+		return self.innocently_excl_indices
 
 	def innocently_includable(self):
 
 		if not self.excl:
 			raise ValueError("Exclusion has not been applied yet.")
 
-		evalNegSet = [~f for f in self.innocently_excl] + [self.p]
-		evalPosSet = [f for i,f in enumerate(self.alts) if not self.innocently_excl_indices[i]]
+		evalNegSet = [~f for f, excludable in zip(self.alts, self.innocently_excl_indices) if excludable] + [self.p]
+		evalPosSet = [ f for f, excludable in zip(self.alts, self.innocently_excl_indices) if not excludable]
 
-		worldsStengthenedPrejacent = np.prod(self.u.evaluate(*evalNegSet, no_flattening = True), axis = 1,dtype = "bool")
+		worldsStengthenedPrejacent = np.prod(self.u.evaluate(*evalNegSet, no_flattening = True), axis = 1, dtype = "bool")
 		uSPrejacent = self.u.restrict(worldsStengthenedPrejacent)
 		
 		if evalPosSet:
 			maximalSets = alternatives.find_maximal_sets(uSPrejacent, evalPosSet)
-			self.maximalInclSets = [[evalPosSet[i] for i,b in enumerate(setE) if b] for setE in maximalSets]
-		
-			self.innocently_incl_indices = np.prod(maximalSets, axis = 0, dtype = "bool")
-			self.innocently_incl = [f for i,f in enumerate(evalPosSet) if self.innocently_incl_indices[i]]
+
+			# The maximal sets only refer to positions in the set of non-excludable alternatives
+			self.maximalInclSets = np.full((len(maximalSets), len(self.alts)), False, dtype = "bool")
+			self.maximalInclSets[:, np.logical_not(self.innocently_excl_indices)] = maximalSets
+
+			self.innocently_incl_indices = np.prod(self.maximalInclSets, axis = 0, dtype = "bool")
 		else:
-			self.maximalInclSets = []
-			self.innocently_incl = []
+			self.maximalInclSets         = []
+			self.innocently_incl_indices = []
 
 		self.incl = True
-		return self.innocently_incl
+		return self.innocently_incl_indices
 
-	def diagnose(self):
+	def diagnose(self, display = jprint):
 		"""Diplay pertinent information regarding the results of the computation such as maximal sets, IE alternatives, II alternatives"""
 		def colon_sep_fs(fs):
 			str_fs = [str(f) for f in fs]
 			return "; ".join(str_fs) 
 
 		if self.excl:
-			jprint("Maximal Sets (excl):")
+			display("Maximal Sets (excl):")
 			for excl in self.maximalExclSets:
-				jprint("{" + colon_sep_fs(excl) + "}") 
-			jprint()
-			jprint("Innocently excludable:", colon_sep_fs(self.innocently_excl))
+				display("{" + colon_sep_fs(self.extract_alts(excl)) + "}") 
+			display()
+			display("Innocently excludable:", colon_sep_fs(self.innocently_excl))
 
 		if self.incl:
-			jprint()
-			jprint()
-			jprint("Maximal Sets (incl):")
+			display()
+			display()
+			display("Maximal Sets (incl):")
 			for incl in self.maximalInclSets:
-				jprint("{" + colon_sep_fs(incl) + "}") 
-			jprint()
-			jprint("Innocently includable:", colon_sep_fs(self.innocently_incl))
-		jprint()
+				display("{" + colon_sep_fs(self.extract_alts(incl)) + "}") 
+			display()
+			display("Innocently includable:", colon_sep_fs(self.innocently_incl))
+		display()
+
+	@property
+	def innocently_excl(self):
+		return self.extract_alts(self.innocently_excl_indices)
+	
+	@property
+	def innocently_incl(self):
+		return self.extract_alts(self.innocently_incl_indices)
+	
+
+	def extract_alts(self, mask):
+		return [alt for alt, included in zip(self.alts, mask) if included]	
 
 class Exh(prop.Operator):
 	"""
@@ -138,7 +151,7 @@ class Exh(prop.Operator):
 			self.iiSet = []
 		
 
-		self.evalSet = [~f for f in self.ieSet] + [f for f in self.iiSet]
+		self.evalSet = [~f for f, excludable in zip(self.alts, self.ieSet) if excludable] + [f for f, includable in zip(self.alts, self.iiSet) if includable]
 
 
 
@@ -149,16 +162,18 @@ class Exh(prop.Operator):
 	
 		return np.min(np.stack(values), axis = 0)
 
-	def get_alts(self):
-		return self.e.alts
 
+	@property
+	def alts(self):
+		return self.e.alts
+	
 
 	def vars(self):
 		self.vm = model.VarManager.merge(self.children[0].vm, *[alt.vm for alt in self.alts])
 		return self.vm
 
-	def diagnose(self):
-		self.e.diagnose()
+	def diagnose(self, *args, **kwargs):
+		self.e.diagnose(*args, **kwargs)
 
 	def eq(self, other):
 		return (other.type == "exh") and (self.children[0] == other.children[0])
@@ -172,7 +187,6 @@ class Exh(prop.Operator):
 		return Exh(self.prejacent, alts = self.alts)
 
 
-	alts = property(get_alts)
 
 
 
