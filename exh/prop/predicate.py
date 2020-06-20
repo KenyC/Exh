@@ -34,7 +34,8 @@ class Pred(Formula):
 
 		self.depends(*depends)
 
-		super(Pred, self).__init__(index)
+		self.idx = index
+		super(Pred, self).__init__()
 
 
 	def flatten(self):
@@ -82,9 +83,6 @@ class Pred(Formula):
 
 		return self.vm
 
-	@property
-	def idx(self):
-		return self.children[0]
 
 
 

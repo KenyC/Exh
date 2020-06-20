@@ -55,6 +55,10 @@ def find_maximal_sets(universe, props):
 
 	return np.stack(maximal_sets)
 
+
+
+
+
 def simplify_alt(alt):
 	"""Performs simple heuristics to simplify a formula: such as "A or A" is "A" ; "A and A" is "A" """
 	if isinstance(alt, Or) or isinstance(alt, And):
@@ -65,6 +69,9 @@ def simplify_alt(alt):
 def simplify_alts(alts):
 	"""Applies "simplify_alt" to a list"""
 	return list(map(simplify_alt, alts))
+
+
+
 
 
 def alt_aux(p, scales, subst):
