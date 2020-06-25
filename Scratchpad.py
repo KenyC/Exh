@@ -24,7 +24,27 @@ f = Ex > (Exh(a, alts = [b]) | Exh(b, alts = [a]))
 
 # %%
 
+c = Pred(2, name = "c", depends=["x", "y"])
+
+f = Ex > Ey > c
+
+# %%
 u = Universe(f=f)
+
+u.truth_table(f, html = False)
+
+# %%
+
+f1 = Exh(Ex > Exh(Ey > c))
+
+f1.diagnose(print)
+
+# %%
+
+print(u.entails(f1, ~ (Ex > Ay > c)))
+print(u.entails(f1, ~ (Ax > Ay > c)))
+print(u.entails(f1, ~ (Ax > Ey > c)))
+print(u.equivalent(f1, (Ex > (Ey > c) & ~ (Ay > c)) & ~ (Ax > Ey > c) & ~(Ex > Ay > c)))
 
 # %%
 
