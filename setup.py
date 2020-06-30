@@ -1,7 +1,8 @@
+import exh
 from setuptools import setup
 
 setup(name             = "Exh",
-      version          = "0.6",
+      version          = exh.__version__,
       description      = "Computes innocent exclusion/inclusions exhaustivity",
       url              = "http://github.com/KenyC/Exh",
       author           = "Keny Chatain",

@@ -1,3 +1,5 @@
+__version__ = "0.7"
+
 from .prop    import *
 from .model   import *
 from .fol     import *

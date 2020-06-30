@@ -22,6 +22,7 @@ exh/prop/__init__.py
 exh/prop/display.py
 exh/prop/evaluate.py
 exh/prop/formula.py
+exh/prop/predicate.py
 exh/prop/simplify.py
 exh/utils/__init__.py
 exh/utils/table.py
