@@ -168,8 +168,11 @@ exh2 = Exh(prejacent, alts = [Ax > p1 & p2,
 assert(quant_universe.equivalent(exh2, prejacent & (Ex > ~p1) & (Ex > ~p2)))
 assert(not quant_universe.equivalent(exh2, prejacent & (Ex > p1) & (Ex > p2)))
 
+
 # Two implicatures: 1) that someone did only p1, 2) that someone did only p2
 
+# Dealing with free_vars
+Exh(p1, alts = [p1, p2])
 
 # ### Automatic alternatives
 
@@ -195,6 +198,9 @@ assert(len(h3.alts) == 2 * 2) # alts for each subtree
 
 h4 = Exh(Ex > p1 | p2, scales = [{Or, And}]) # no "some", "all" scale
 assert(len(h4.alts) == 2 + 2) 
+
+# Dealing with free_vars without specified alternatives
+Exh(p1 | p2)
 
 
 # %%
