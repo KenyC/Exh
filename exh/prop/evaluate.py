@@ -78,7 +78,7 @@ class Evaluate:
 		   np.ndarray[bool] -- Boolean array of shape (n_assignment, dom_quant, ..., dom_quant) specifying for each assignment and values given to free variables
 		                                                             <---number of free vars-->
 		"""
-		raise Exception("evaluate_aux has not been implemented for the current type of formula")
+		raise Exception("evaluate_aux is not been implemented for class {}".format(self.__class__.__name__))
 
 
 

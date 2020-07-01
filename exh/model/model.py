@@ -103,7 +103,7 @@ class Universe:
 		"""
 		Returns list of meaningful names to bits, depending on which predicates they set true
 
-		e.g. if Universe is for unary predicate "a", an propositional variable "b" will return
+		e.g. if Universe is for propositional variable "a", and unary predicate "b" will return
 		["a", "b(0)", "b(1)", "b(2)"]
 		"""
 

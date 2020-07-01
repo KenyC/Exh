@@ -9,16 +9,17 @@ from .formula import Formula
 
 ############### PREDICATE CLASS ################
 
-"""
-Class for atomic proposition and predicate variable
-Attributes:
-	- name : name for display and evaluation
-	- arity : for n-ary predicates, the number of variables that the predicate depends on
-	- deps : the name of the default variables that the predicate depends 
-	(i.e. when no vars are specified, as in Ax > a, this is what the predicate depends on)
-	- idx : an integer that uniquely identifies the predicate
-"""
 class Pred(Formula):
+	"""
+	Class for atomic proposition and predicate variable
+	Attributes:
+		- name : name for display and evaluation
+		- arity : for n-ary predicates, the number of variables that the predicate depends on
+		- deps : the name of the default variables that the predicate depends 
+		(i.e. when no vars are specified, as in Ax > a, this is what the predicate depends on)
+		- idx : an integer that uniquely identifies the predicate
+	"""
+
 	no_parenthesis = True
 
 
@@ -63,10 +64,14 @@ class Pred(Formula):
 
 	# @profile
 	def evaluate_aux(self, assignment, vm, variables = dict(), free_vars = list()):
-		# Not necessary to split by "free_vars", the empty case is just a speical case
+		# Not necessary to split by "free_vars", the empty case is just a special case
 		# The split avoids generalizing to the worst case.
 		if not free_vars: 
-			value_slots = [variables[dep] for dep in self.deps]
+			try:
+				value_slots = [variables[dep] for dep in self.deps]
+			except KeyError as e:
+				raise Exception("Predicate {} cannot be evaluated b/c no value for free variable {} was provided".format(self.name, e))
+
 			return assignment[:, vm.index(self.idx, value_slots)]
 		else:
 			""" 

@@ -12,10 +12,10 @@ class VarManager:
 	are mapped to
 	Indices: 0    1    2   3
 	
-	Attributes
-	preds             -- a dictionary mapping predicate names to the variables they depend on
-	pred_to_vm_index  -- a dictionary mapping predicate names to their indices
-	names             -- a dictionary mapping predicate names to their indices
+	Attributes:
+		preds             -- a dictionary mapping predicate names to the variables they depend on
+		pred_to_vm_index  -- a dictionary mapping predicate names to their indices
+		names             -- a dictionary mapping predicate names to their indices
 	"""
 	def __init__(self, preds, names = dict()):
 		self.preds = preds 

@@ -51,8 +51,8 @@ class Table:
 		if self.options["row_lines"]:
 			self.insert_hline()
 
-	# 0 means leftmost border ; ncols + 1 rightmost border
 	def set_strong_col(self, i):
+		# 0 means leftmost border ; ncols + 1 rightmost border
 		self.strong_cols.append(i)
 
 	def insert_hline(self):
