@@ -45,6 +45,9 @@ A("x") > Ey > e
 f5 = Ax > Ey > e("y", "x")
 
 
+# nameless predicate
+assert(Pred(7).display_aux(False) == "A7")
+
 header("EVALUATION")
 # %%
 # Propositional logic
