@@ -14,7 +14,7 @@ class VarManager:
 	
 	Attributes:
 		preds             -- a dictionary mapping predicate names to the variables they depend on
-		pred_to_vm_index  -- a dictionary mapping predicate names to their indices
+		pred_to_vm_index  -- a dictionary mapping predicate names to their position in preds
 		names             -- a dictionary mapping predicate names to their indices
 	"""
 	def __init__(self, preds, names = dict()):

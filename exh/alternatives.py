@@ -77,12 +77,16 @@ def simplify_alts(alts):
 
 def alt_aux(p, scales, subst):
 	"""Return alternatives to a formula following a Sauerland-esque algorithm"""
-
-	if p.stipulated_alts is not None:
-		return [p] + p.stipulated_alts
-
+	# in case the prejacent is an Exh with stipulated alternatives, just return that
 	if isinstance(p, Pred):
 		return [p]
+
+	if isinstance(p, exhaust.Exh):
+		all_alternatives = [p.prejacent]
+		all_alternatives.extend(p.alts)
+		exh_alternatives = [exhaust.Exh(alt, alts = all_alternatives[:i] + all_alternatives[i + 1:]) 
+		                    for i, alt in enumerate(all_alternatives)]
+		return exh_alternatives
 
 
 	# Scales that the current node participates in
@@ -91,6 +95,7 @@ def alt_aux(p, scales, subst):
 
 	children_alternative = [alt_aux(child, scales, subst) for child in p.children]
 
+	# The alternatives are replaced by copies
 	children_replacement = []
 	for t in product(*children_alternative):
 		to_append = copy.copy(p)
@@ -104,6 +109,8 @@ def alt_aux(p, scales, subst):
 	for scale_mate in rel_scale:
 		for child in children_replacement:
 			scale_replacement.append(constructors[scale_mate.__name__](child))
+
+	
 
 	if subst and p.subst:
 		return children_replacement + scale_replacement + [alt for child_alts in children_alternative for alt in child_alts]

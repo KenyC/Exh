@@ -202,6 +202,12 @@ assert(len(h4.alts) == 2 + 2)
 # Dealing with free_vars without specified alternatives
 Exh(p1 | p2)
 
+# Dealing with recursive exh when the embedded exh has stipulated alternatives
+h5 = Exh(Exh(a, alts = [a, b]))
+assert(Exh(b, alts = [a]) in h5.alts)
+assert(prop_universe.equivalent(h5, a & ~b))
+
+
 
 # %%
 header("FREE CHOICE REPLICATION")
