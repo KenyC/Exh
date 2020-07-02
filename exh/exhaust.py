@@ -32,7 +32,6 @@ class Exhaust:
 			self.alts = alternatives.alt(prejacent, scales = scales, subst = subst)
 		else:
 			self.alts = alts
-			self.p.stipulated_alts = alts
 
 		self.free_vars = set(self.p.free_vars)
 		for alt in self.alts:

@@ -38,9 +38,6 @@ class Formula(IteratorType, Display, Evaluate): # Using sub-classing to spread c
 		self.free_vars = list(set(var for child in self.children for var in child.free_vars)) 
 		self.free_vars.sort()
 
-		# Stipulated alternatives : None means that alternatives must be computed, otherwise, a list of stipulated alternatives
-		self.stipulated_alts = None
-
 	def reinitialize(self): #only used for Exh, which performs computation at initialization
 		pass
 
