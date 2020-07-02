@@ -78,8 +78,12 @@ def simplify_alts(alts):
 def alt_aux(p, scales, subst):
 	"""Return alternatives to a formula following a Sauerland-esque algorithm"""
 
+	if p.stipulated_alts is not None:
+		return [p] + p.stipulated_alts
+
 	if isinstance(p, Pred):
 		return [p]
+
 
 	# Scales that the current node participates in
 	rel_scale = set(type_f for s in scales if any(isinstance(p, type_f) for type_f in s) 
