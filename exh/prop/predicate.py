@@ -58,7 +58,7 @@ class Pred(Formula):
 			dep_string = ""
 		
 		if self.name is None:
-			return "A{}".format(self.children[0]) + dep_string
+			return "A{}".format(self.idx) + dep_string
 		else:
 			return self.name + dep_string
 
