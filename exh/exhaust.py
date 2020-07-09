@@ -184,8 +184,8 @@ class Exh(prop.Operator):
 	def diagnose(self, *args, **kwargs):
 		self.e.diagnose(*args, **kwargs)
 
-	def eq(self, other):
-		return (other.type == "exh") and (self.children[0] == other.children[0])
+	def __eq__(self, other):
+		return isinstance(other, Exh) and (self.children[0] == other.children[0])
 
 	@property
 	def prejacent(self):

@@ -35,7 +35,7 @@ class Quantifier(prop.Formula):
 		raise Exception("Evaluation of abstract class Quantifier ; use Universal or Existential class")
 
 	def __eq__(self, other):
-		if self.type == other.type:
+		if self.__class__ is other.__class__:
 			if self.qvar == other.qvar:
 				return self.children[0] == other.children[0]
 		return False

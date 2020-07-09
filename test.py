@@ -45,11 +45,24 @@ A("x") > Ey > e
 f5 = Ax > Ey > e("y", "x")
 
 
-# nameless predicate
+# names for nameless predicates
 assert(Pred(7).display_aux(False) == "A7")
+assert(a.display_aux(False)       == "a")
 
-header("EVALUATION")
 # %%
+header("FORMULA METHODS")
+
+# Simple prop logic formul
+assert(not (a == b))
+assert((a | b) == (b | a))
+assert(not ((a | b) == (b | c)))
+
+# FOL formulas
+assert((Ex > Pred(4, "d1", depends = "x")) == (Ex > d))
+
+
+# %%
+header("EVALUATION")
 # Propositional logic
 
 assert((a | b).evaluate(a = True, b = False))
@@ -128,6 +141,10 @@ header("EXHAUSTIFICATION")
 
 e = Exh(Ex > d, alts = [Ax > d])
 e1 = Exh(a | b, alts = [a, b, a & b])
+
+# Test syntactic equality
+assert(e1 == Exh(b | a, alts = []))
+assert(e1 != Exh(b | c, alts = []))
 
 
 assert(
