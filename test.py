@@ -56,6 +56,7 @@ header("FORMULA METHODS")
 assert(not (a == b))
 assert((a | b) == (b | a))
 assert(not ((a | b) == (b | c)))
+assert((a | b) != (a & b))
 
 # FOL formulas
 assert((Ex > Pred(4, "d1", depends = "x")) == (Ex > d))
