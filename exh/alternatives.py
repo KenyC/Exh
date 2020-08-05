@@ -22,7 +22,7 @@ constructors = {"And":         lambda pre: And(*pre.children),
 				"Universal":   lambda pre: Universal(pre.qvar, pre.children[0])}
 
 
-
+############################ MAXIMAL SETS ##############################################
 
 
 def find_maximal_sets(universe, props, variables = None):
@@ -35,7 +35,10 @@ def find_maximal_sets(universe, props, variables = None):
 
 	Arguments:
 		universe (Universe)
-		props (list[Formula]) -- set of propositions to compute the maximal sets of
+		props    (list[Formula]) -- set of propositions to compute the maximal sets of
+
+	Returns:
+		np.array[bool]           -- returned_value[i, j] is True iff i-th maximal set contains j-th proposition
 
 	"""
 	kwargs       = {} if variables is None else {"variables" : variables}
@@ -59,9 +62,105 @@ def find_maximal_sets(universe, props, variables = None):
 
 
 
+############################ ALTERNATIVE GENERATION ##############################################
+"""
+*alts_aux* performs the automatic generation of alternatives
+*alts* adds on top of this simplification of the set of alternatives using braindead heuristics
+"""
+
+
+
+
+# @profile
+def alt_aux(p, scales, subst):
+	"""
+	Return alternatives to a formula following a Sauerland-esque algorithm. 
+	Specifically, an alternative is anything which can be obtained from the prejacent by sub-constituent replacement ("A" is an alternative to "A or B"), scale replacement ("a or b" is an alternative to "a and b")
+	
+	Arguments:
+		p      (Formula)           -- prejacent
+		scales (list[tuple[class]])-- the list of scales in the lexicon
+		subst  (bool)              -- whether to take subconstituent alternatives
+
+	Returns:
+		list[Formula] -- the alternatives
+
+	"""
+
+	# A predicate has no alternatives
+	if isinstance(p, Pred):
+		return [p]
+
+	# in case the prejacent is an Exh, its alternative are either stipulated or already computed as "p.alts"
+	# So the returned set of alternatives is just {Exh(alt) | alt \in p.alts}
+	if isinstance(p, exhaust.Exh):
+		all_alternatives = [p.prejacent]
+		all_alternatives.extend(p.alts)
+
+		
+		exh_alternatives = [p]
+		exh_alternatives.extend(
+			[exhaust.Exh(alt, alts = all_alternatives[:i] + all_alternatives[i + 1:]) 
+		                    for i, alt in enumerate(all_alternatives) if i != 0 # <--- trick: we don't recompute exhaustification of the prejacent
+			]
+		) 
+		# exh_alternatives = [exhaust.Exh(alt, alts = all_alternatives[:i] + all_alternatives[i + 1:]) 
+		#                     for i, alt in enumerate(all_alternatives)]
+		return exh_alternatives
+
+	# GENERAL CASE:
+
+
+	# Find the scalemates of the prejacent
+	rel_scale = set(type_f for s in scales if any(isinstance(p, type_f) for type_f in s) 
+	                       for type_f in s if not isinstance(p, type_f))
+
+	# Recursively obtain the alternatives of the children nodes of the prejacent 
+	children_alternative = [alt_aux(child, scales, subst) for child in p.children]
+
+
+	root_fixed_alts = []
+	# For every choice of an alternative to a child (C1 x C2 x ... x Cn where Ci are the children's alternatives)
+	for t in product(*children_alternative):
+		# To avoid problems, the prejacent is copied
+		to_append = copy.copy(p)
+		to_append.children = t
+
+		# Because exhaust will need to perform computation at initialization, we need to reinitialize. (<= Not sure if this is necessary given that the case Exh is already dealt with)
+		to_append.reinitialize()#constructors[p.type](to_append)
+		root_fixed_alts.append(to_append)
+	# "root_fixed_alts" now contains all alternatives to the current formula that keep the root node the same 
+	# e.g. p = a | (b & c) => root_fixed_alts = [a | b, a | c, a | (b | c), a | (b & c)]
+
+	# we now need to include scalar replacements
+	scalar_alts = []
+	for scale_mate in rel_scale:
+		for child in root_fixed_alts:
+			scalar_alts.append(constructors[scale_mate.__name__](child))
+
+	
+
+	if subst and p.subst: # if sub-constituent are alternatives, add every element of child_alts 
+		return root_fixed_alts + scalar_alts + [alt for child_alts in children_alternative for alt in child_alts]
+	else:
+		return root_fixed_alts + scalar_alts
+
+# @profile
+def alt(p, scales = [], subst = False):
+	"""
+	Simplifies the result of alt_aux for efficiency
+
+	1) Simplify trivial alternatives: A or A -> A, B and B -> B
+	2) Remove duplicate alternatives: {A, B, B, A or B} -> {A, B, A or B}
+	"""
+	return remove_doubles(simplify_alts(alt_aux(p, scales, subst)))
+	# return alt_aux(p, scales, subst)
+
+
+
 
 def simplify_alt(alt):
-	"""Performs simple heuristics to simplify a formula: such as "A or A" is "A" ; "A and A" is "A" """
+	"""Performs simple heuristics to simplify a formula, namely "A or A" is "A" ; "A and A" is "A" """
 	if isinstance(alt, Or) or isinstance(alt, And):
 		if len(alt.children) == 2 and alt.children[0] == alt.children[1]:
 			return alt.children[0]
@@ -70,60 +169,6 @@ def simplify_alt(alt):
 def simplify_alts(alts):
 	"""Applies "simplify_alt" to a list"""
 	return list(map(simplify_alt, alts))
-
-
-
-
-
-def alt_aux(p, scales, subst):
-	"""Return alternatives to a formula following a Sauerland-esque algorithm"""
-	# in case the prejacent is an Exh with stipulated alternatives, just return that
-	if isinstance(p, Pred):
-		return [p]
-
-	if isinstance(p, exhaust.Exh):
-		all_alternatives = [p.prejacent]
-		all_alternatives.extend(p.alts)
-		exh_alternatives = [exhaust.Exh(alt, alts = all_alternatives[:i] + all_alternatives[i + 1:]) 
-		                    for i, alt in enumerate(all_alternatives)]
-		return exh_alternatives
-
-
-	# Scales that the current node participates in
-	rel_scale = set(type_f for s in scales if any(isinstance(p, type_f) for type_f in s) 
-	                       for type_f in s if not isinstance(p, type_f))
-
-	children_alternative = [alt_aux(child, scales, subst) for child in p.children]
-
-	# The alternatives are replaced by copies
-	children_replacement = []
-	for t in product(*children_alternative):
-		to_append = copy.copy(p)
-		to_append.children = t
-
-		# Because exhaust will need to perform computation at initialization, we need to reinitialize.
-		to_append.reinitialize()#constructors[p.type](to_append)
-		children_replacement.append(to_append)
-
-	scale_replacement = []
-	for scale_mate in rel_scale:
-		for child in children_replacement:
-			scale_replacement.append(constructors[scale_mate.__name__](child))
-
-	
-
-	if subst and p.subst:
-		return children_replacement + scale_replacement + [alt for child_alts in children_alternative for alt in child_alts]
-	else:
-		return children_replacement + scale_replacement
-
-def alt(p, scales = [], subst = False):
-	"""Simplifies the result of alt_aux for efficiency"""
-	return remove_doubles(simplify_alts(alt_aux(p, scales, subst)))
-
-
-
-
 
 
 

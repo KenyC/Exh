@@ -21,18 +21,20 @@ class Exhaust:
 		alts (list[Formula])   -- the alternatives
 		incl (bool)            -- whether IE exhaustification has been computed yet
 		incl (bool)            -- whether II exhaustification has been computed yet
-		vm   (VariableManager) 
-		u    (Universe) 
+		vm   (VariableManager) -- variable manager for prejacent & alternatives
+		u    (Universe)        -- universe with all corresponding logical possibilities
 	"""
 	
 	
 	def __init__(self, prejacent, alts = None, scales = options.scales, subst = options.sub):
 		self.p = prejacent
-		if alts is None:
+
+		if alts is None: # if no alternative is given, compute them automatically
 			self.alts = alternatives.alt(prejacent, scales = scales, subst = subst)
 		else:
 			self.alts = alts
 
+		# If there are free variables in the prejacent or the alternatives, they must be saturated with dummy values 
 		self.free_vars = set(self.p.free_vars)
 		for alt in self.alts:
 			self.free_vars.union(set(alt.free_vars))
@@ -52,11 +54,12 @@ class Exhaust:
 		worldsPrejacent = np.squeeze(self.u.evaluate(self.p, no_flattening = True, 
 		                                                     variables = self.dummy_vals), # give free variables dummy values
 		                             axis = 1) 
+		# We restrict ourselves to the worlds where the prejacent is True
 		uPrejacent = self.u.restrict(worldsPrejacent)
 
 		if evalSet and uPrejacent.n_worlds != 0:
 			self.maximalExclSets         = alternatives.find_maximal_sets(uPrejacent, evalSet, variables = self.dummy_vals)
-			self.innocently_excl_indices = np.prod(self.maximalExclSets, axis = 0, dtype = "bool")
+			self.innocently_excl_indices = np.prod(self.maximalExclSets, axis = 0, dtype = "bool") # innocently_excl_indices[i] is true iff the i-th proposition belongs to every maximal set
 		else:
 			self.maximalExclSets         = []
 			self.innocently_excl_indices = []
@@ -77,13 +80,13 @@ class Exhaust:
 		                                     axis = 1, 
 		                                     dtype = "bool")
 
-
+		# Restricting ourselves to the worlds where the prejacent is true and the negatable alternatives are false.
 		uSPrejacent = self.u.restrict(worldsStengthenedPrejacent)
 		
 		if evalPosSet  and uSPrejacent.n_worlds != 0:
 			maximalSets = alternatives.find_maximal_sets(uSPrejacent, evalPosSet, variables = self.dummy_vals)
 
-			# The maximal sets only refer to positions in the set of non-excludable alternatives
+			# The maximal sets refer to positions in the set of non-excludable alternatives ; we must convert this to position in the whole set of alternatives
 			self.maximalInclSets = np.full((len(maximalSets), len(self.alts)), False, dtype = "bool")
 			self.maximalInclSets[:, np.logical_not(self.innocently_excl_indices)] = maximalSets
 
