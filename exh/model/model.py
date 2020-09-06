@@ -21,6 +21,8 @@ class Universe:
 	n_worlds -- number of worlds in universe
 	"""
 
+
+
 	def __init__(self, **kwargs):
 		"""
 		Keyword arguments:
@@ -150,6 +152,10 @@ class Universe:
 		self.n = self.vm.n
 		self.worlds = utils.getAssignment(n)
 
+	# No formatting ; overridden in children classes
+	def format_row(self, x):
+		return x
+
 	def truth_table(self, *fs, **kwargs):
 		"""Display a truth-table for formulas fs. Keyword arguments are passed to table (cf exh.utils.table)"""
 
@@ -168,7 +174,7 @@ class Universe:
 		combined = np.concatenate([self.worlds, output], axis = 1)
 
 		for row in combined:
-			table.add_row(row)
+			table.add_row(self.__class__.format_row(row))
 
 		table.set_strong_col(nvars)
 		table.print()	
