@@ -20,6 +20,7 @@ Steps to use
 3) Run the profiler using the following command
 
 	python -m line_profiler Profiling.py.lprof
+
 """
 # %%
 
@@ -27,12 +28,12 @@ from exh import *
 
 # %%
 
-p = Pred(0, name = "p", depends=["x"])
-q = Pred(0, name = "q", depends=["x"])
-r = Pred(0, name = "r", depends=["x"])
+p = Pred(0, name = "p", depends = ["x"])
+q = Pred(1, name = "q", depends = ["x"])
+r = Pred(2, name = "r", depends = ["x"])
+alts = [p, q, r]
 
-Exh(Exh(Exh(p | Exh(Exh(q)))) | Exh(r))
-
+Exh(Exh(Exh(p, alts = alts) | Exh(Exh(q, alts = alts)))) 
 
 # %%
 (Ex > Ay > a).evaluate(a = [[True, False, False], [False, True, False], [False, False, True]])
