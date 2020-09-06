@@ -11,12 +11,26 @@ class TVal(enum.IntEnum):
 	pound = 0
 
 
-	def swap(n): 
+	def swap_pound_smallest(n): 
 		"""
-		Maps n to:
-		0  -> -1
-		-1 -> 0
-		1  -> 1
+		Maps the truth-values as follows (T: true, F: false, # : pound) 
+		F#T
+		->
+		#FT
+
 		Useful to convert connectives from weak to strong Kleene and vice-versa
+		This function is its own inverse
 		"""
-		return n + (n < 1) * (- 1 - 2 * n) # this complicated construct is meant to work with both np array and ordinary int
+		return  - 1 - n + 3 * (n == 1) # this complicated construct is meant to work with both np array and ordinary int
+
+	def swap_pound_greatest(n): 
+		"""
+		Maps the truth-values as follows (T: true, F: false, # : pound) 
+		F#T
+		->
+		FT#
+
+		Useful to convert connectives from weak to strong Kleene and vice-versa
+		This function is its own inverse
+		"""
+		return 1 - n - 2 * (n == -1) # this complicated construct is meant to work with both np array and ordinary int

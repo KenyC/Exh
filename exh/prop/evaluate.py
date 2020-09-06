@@ -7,6 +7,23 @@ import exh.model.options as options
 ### EVALUATION METHODS ###			
 
 class Evaluate:
+
+	def make_assignment_from_predicate_values(self, predicate_values, vm):
+		assignment = np.full(vm.n, True)
+
+		for var, val in predicate_values.items():
+			if var in vm.names:
+				idx = vm.names[var]
+			# else:
+			# 	continue
+
+			deps = vm.preds[idx]
+
+			for t in itertools.product(range(options.dom_quant), repeat = deps):
+				i = vm.index(idx, t)
+				assignment[i] = utils.get(val, t)
+
+		return assignment[np.newaxis, :]
 	
 	def evaluate(self, **kwargs):
 		"""
@@ -38,25 +55,17 @@ class Evaluate:
 		if "assignment" in kwargs:
 			assignment = kwargs["assignment"]
 		else:
-			assignment = np.full(vm.n, True)
-
-			for var, val in kwargs.items():
-				if var in vm.names:
-					idx = vm.names[var]
-				else:
-					continue
-
-				deps = vm.preds[idx]
-
-				for t in itertools.product(range(options.dom_quant), repeat = deps):
-					i = vm.index(idx, t)
-					assignment[i] = utils.get(val, t)
-
-			assignment = assignment[np.newaxis, :]
+			# assignment = self.__class__.make_assignment_from_predicate_values(self, kwargs, vm)
+			assignment = self.make_assignment_from_predicate_values(kwargs, vm)
 
 		variables = kwargs.get("variables", dict())
 		free_vars = [var for var in kwargs.get("free_vars", self.free_vars) if var not in variables]
-		to_return = self.evaluate_aux(assignment, vm, variables = variables, free_vars = free_vars)
+		to_return = self.evaluate_aux(
+			assignment, 
+			vm, 
+			variables = variables, 
+			free_vars = free_vars
+		)
 
 		if all(dim == 1 for dim in to_return.shape) and not ("no_flattening" in kwargs and kwargs["no_flattening"]):
 			return np.asscalar(to_return)

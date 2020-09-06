@@ -28,7 +28,7 @@ class Universe(model.Universe):
 		(Note this yields a bivalent result)
 		"""
 		output = self.evaluate(*fs)
-		return np.max(np.min(TVal.swap(output), axis = 1)) == TVal.true
+		return np.any(np.all(output == TVal.true, axis = 1)) 
 
 	def format_row(self, row):
 		"""
