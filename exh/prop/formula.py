@@ -251,4 +251,17 @@ class Falsity(Formula):
 		else:
 			return "true"
 
+class Named(Formula):
+	def __init__(self, name, child, latex_name = None):
+		super(Named, self).__init__(child)
+		self.name       = name
+		self.latex_name = latex_name if latex_name is not None else self.name
 
+	def evaluate_aux(self, *args, **kwargs):
+		return self.children[0].evaluate_aux(*args, **kwargs)
+
+	def display_aux(self, latex):
+		if latex:
+			return self.latex_name
+		else:
+			return self.name
