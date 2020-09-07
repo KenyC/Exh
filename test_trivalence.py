@@ -26,6 +26,9 @@ Pred(7) # "name" is optional, "name" makes prettier display with print and helps
 Pred(2, name = "er", depends = 1)
 Pred(2, name = "er", depends = ["x", "y"])
 Pred(2, name = "er", depends = "x")
+Named("a", a)
+assert(Named("a", a, latex_name = "b").display_aux(latex = False) == "a")
+assert(Named("a", a, latex_name = "b").display_aux(latex = True)  == "b")
 
 a | b
 a & b
@@ -60,6 +63,7 @@ header("EVALUATION")
 # Propositional logic
 
 assert((a | b).evaluate(a = TVal.true, b = TVal.false) == TVal.true)
+assert((a | b).evaluate(a = TVal.true, b = TVal.false) == Named("a_or_b", a | b).evaluate(a = TVal.true, b = TVal.false))
 assert((a | (b & ~a)).evaluate(a = TVal.true, b = TVal.false) == TVal.true)
 
 # %%

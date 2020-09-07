@@ -20,9 +20,6 @@ class Formula(bivalent.Formula):
 
 	projection = ProjectionRules.StrongKleene
 
-	def __init__(self, *args, **kwargs):
-		super(Formula, self).__init__(*args, **kwargs)
-
 
 	def __and__(self, other):
 		""" Redefining __and__ with trivalent AND """
@@ -205,3 +202,10 @@ def Or(*args, **kwargs):
 		return WeakKleene.Or(*args, **kwargs)
 	else:
 		raise Exception("Not implemented yet!")
+
+
+# Importing utility clas from bivalent setting
+
+class Named(Formula, bivalent.Named):
+	pass
+	
