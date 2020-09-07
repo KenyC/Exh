@@ -81,6 +81,34 @@ class Not(Operator):
 	def __init__(self, child):
 		super(Not, self).__init__(Not.fun_, child)
 
+class Presupposition(Operator):
+	"""
+	True whenever child formula is not pound, false otherwise
+	"""
+	no_parenthesis = True
+
+	plain_symbol = "pres"
+	latex_symbol = r"\mathbf{Pres}"
+
+	fun_ = lambda x: np.squeeze(TVal.toggle_pound_smallest(x != 0), axis = 0) # multiplication by 1 to cast to int
+
+	def __init__(self, child):
+		super(Presupposition, self).__init__(Presupposition.fun_, child)
+
+class Assert(Operator):
+	"""
+	True whenever child formule is true, false otherwise
+	"""
+	no_parenthesis = True
+
+	plain_symbol = "assert"
+	latex_symbol = r"\mathbf{Assert}"
+
+	fun_ = lambda x: np.squeeze(TVal.toggle_pound_smallest(x == 1), axis = 0) # multiplication by 1 to cast to int
+
+	def __init__(self, child):
+		super(Assert, self).__init__(Assert.fun_, child)
+
 
 # Strong Kleene operators
 
@@ -140,7 +168,7 @@ class WeakKleene:
 		latex_symbol = r"\land_{WK}"
 
 		def fun_(values):
-			return TVal.swap_pound_smallest(np.min(TVal.swap_pound_smallest(values), axis = 0))
+			return TVal.toggle_pound_smallest(np.min(TVal.toggle_pound_smallest(values), axis = 0))
 
 		def __init__(self, *children):
 			super(WeakKleene.And, self).__init__(WeakKleene.And.fun_, *children)
@@ -152,7 +180,7 @@ class WeakKleene:
 		latex_symbol = r"\lor_{WK}"
 		
 		def fun_(values):
-			return TVal.swap_pound_greatest(np.max(TVal.swap_pound_greatest(values), axis = 0))
+			return TVal.toggle_pound_greatest(np.max(TVal.toggle_pound_greatest(values), axis = 0))
 
 
 		def __init__(self, *children):

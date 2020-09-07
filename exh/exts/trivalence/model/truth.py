@@ -11,7 +11,7 @@ class TVal(enum.IntEnum):
 	pound = 0
 
 
-	def swap_pound_smallest(n): 
+	def toggle_pound_smallest(n): 
 		"""
 		Maps the truth-values as follows (T: true, F: false, # : pound) 
 		F#T
@@ -23,7 +23,7 @@ class TVal(enum.IntEnum):
 		"""
 		return  - 1 - n + 3 * (n == 1) # this complicated construct is meant to work with both np array and ordinary int
 
-	def swap_pound_greatest(n): 
+	def toggle_pound_greatest(n): 
 		"""
 		Maps the truth-values as follows (T: true, F: false, # : pound) 
 		F#T

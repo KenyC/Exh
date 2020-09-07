@@ -2,9 +2,9 @@
 # %%
 hashes = "#####################################################"
 def header(title):
-    title = " {} ".format(title)
-    padding_size = len(hashes) - len(title)
-    print(hashes[:padding_size // 2] + title + hashes[-padding_size // 2:])
+	title = " {} ".format(title)
+	padding_size = len(hashes) - len(title)
+	print(hashes[:padding_size // 2] + title + hashes[-padding_size // 2:])
 
 
 # %%
@@ -75,10 +75,10 @@ assert((a | (b & ~a)).evaluate(a = True, b = False))
 assert((Ax > d("x")).evaluate(d = [True, True, True]))
 
 assert((Ax > Ey > e("y", "x")).evaluate(e = [
-                                       [True, True, False],
-                                       [False, False, False],
-                                       [False, False, True]
-                                       ]))
+																			 [True, True, False],
+																			 [False, False, False],
+																			 [False, False, True]
+																			 ]))
 
 
 
@@ -102,34 +102,34 @@ assert(prop_universe.n == dom_quant + dom_quant**2)
 
 prop_universe = Universe(fs = [a, b, c])
 result = np.array(
-      [[False, False,  True],
-       [False,  True, False],
-       [False,  True,  True],
-       [ True,  True, False],
-       [False, False,  True],
-       [False,  True,  True],
-       [False,  True,  True],
-       [ True,  True,  True]]
+			[[False, False,  True],
+			 [False,  True, False],
+			 [False,  True,  True],
+			 [ True,  True, False],
+			 [False, False,  True],
+			 [False,  True,  True],
+			 [False,  True,  True],
+			 [ True,  True,  True]]
 )
 assert(np.all(prop_universe.evaluate(a & b, a | b, ~a | c ) == result))
 
 
 
 value = prop_universe.consistent(a | b,
-                                 ~a | ~b,
-                                 b | ~a,
-                                 a | ~b)
+																 ~a | ~b,
+																 b | ~a,
+																 a | ~b)
 assert(not value)
 
 value = prop_universe.entails(a | ~ b & c,
-                              ~(b & ~a) )
+															~(b & ~a) )
 # NB: "a | b & c"  is parsed as "a | (b & c)"
 
 assert(value)
 
 # De Morgan's law
 value = prop_universe.equivalent(~a | ~c,
-                                ~(a & c) )
+																~(a & c) )
 assert(value)
 
 quant_universe = Universe(fs = [Ex > d])
@@ -149,18 +149,18 @@ assert(e1 != Exh(b | c, alts = []))
 
 
 assert(
-    prop_universe.equivalent(
-    e1,
-    (a | b) & ~(a & b)
-    ))
+		prop_universe.equivalent(
+		e1,
+		(a | b) & ~(a & b)
+		))
 
 
 
 assert(
-    quant_universe.equivalent(
-    e,
-    (Ex > d) & ~(Ax > d)
-    ))
+		quant_universe.equivalent(
+		e,
+		(Ex > d) & ~(Ax > d)
+		))
 
 
 
@@ -171,11 +171,11 @@ p2 = Pred(6, name = "p2", depends = ["x"])
 prejacent = Ax > p1 | p2
 
 exh = Exh(prejacent, alts = [Ax > p1 & p2,
-                             Ax > p1,
-                             Ax > p2,
-                             Ex > p1 & p2,
-                             Ex > p1,
-                             Ex > p2])
+														 Ax > p1,
+														 Ax > p2,
+														 Ex > p1 & p2,
+														 Ex > p1,
+														 Ex > p2])
 
 quant_universe = Universe(f = prejacent)
 
@@ -183,8 +183,8 @@ assert(quant_universe.equivalent(exh, Ax > (p1 | p2) & ~ (p1 & p2)))
 
 
 exh2 = Exh(prejacent, alts = [Ax > p1 & p2,
-                              Ax > p1,
-                              Ax > p2])
+															Ax > p1,
+															Ax > p2])
 
 assert(quant_universe.equivalent(exh2, prejacent & (Ex > ~p1) & (Ex > ~p2)))
 assert(not quant_universe.equivalent(exh2, prejacent & (Ex > p1) & (Ex > p2)))
@@ -206,8 +206,8 @@ options.latex_display = False
 print("Computed alternatives", h2.alts)
 
 assert(len(h2.alts) == 4 + # subtree1 
-                       1 + # subtree2
-                       2 * 4 * 1) # alts for each subtree
+											 1 + # subtree2
+											 2 * 4 * 1) # alts for each subtree
 
 # It is possible to specify the scales, to decide whether to allow substitution by sub-consituent.
 

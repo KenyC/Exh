@@ -21,7 +21,8 @@ class Universe:
 	n_worlds -- number of worlds in universe
 	"""
 
-
+	def create_assignment(self):
+		return utils.getAssignment(self.n)
 
 	def __init__(self, **kwargs):
 		"""
@@ -41,7 +42,7 @@ class Universe:
 		self.n = self.vm.n
 
 		if "worlds" not in kwargs:
-			self.worlds = utils.getAssignment(self.n)
+			self.worlds = self.create_assignment()
 		else:
 			self.worlds = kwargs["worlds"]
 
@@ -143,8 +144,8 @@ class Universe:
 
 	def restrict(self, indices):
 		"""Returns Universe object restricted to the worlds with indices in "indices" argument"""
+		return self.__class__(vm = self.vm, worlds = self.worlds[indices]) # in case of derivation, we call the class's own constructor
 
-		return Universe(vm = self.vm, worlds = self.worlds[indices])
 
 
 	def update(self, var):
@@ -174,7 +175,7 @@ class Universe:
 		combined = np.concatenate([self.worlds, output], axis = 1)
 
 		for row in combined:
-			table.add_row(self.__class__.format_row(row))
+			table.add_row(self.format_row(row))
 
 		table.set_strong_col(nvars)
 		table.print()	
