@@ -109,7 +109,7 @@ class Exhaust:
 			for excl in self.maximalExclSets:
 				display("{" + colon_sep_fs(self.extract_alts(excl)) + "}") 
 			display()
-			display("Innocently excludable:", colon_sep_fs(self.innocently_excl))
+			display("Innocently excludable: ", colon_sep_fs(self.innocently_excl) if self.innocently_excl else "nothing")
 
 		if self.incl:
 			display()
@@ -118,7 +118,7 @@ class Exhaust:
 			for incl in self.maximalInclSets:
 				display("{" + colon_sep_fs(self.extract_alts(incl)) + "}") 
 			display()
-			display("Innocently includable:", colon_sep_fs(self.innocently_incl))
+			display("Innocently includable: ", colon_sep_fs(self.innocently_incl) if self.innocently_incl else "nothing")
 		display()
 
 	@property
