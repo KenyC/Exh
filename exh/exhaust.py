@@ -26,13 +26,19 @@ class Exhaust:
 	"""
 	
 	
-	def __init__(self, prejacent, alts = None, scales = options.scales, subst = options.sub):
-		self.p = prejacent
+	def __init__(self, prejacent, alts = None, scales = None, subst = None):
+		# Defining default options dynamically so that users can change options on the fly
+		if scales is None:
+			scales = options.scales
+		if subst is None:
+			subst = options.sub
 
 		if alts is None: # if no alternative is given, compute them automatically
 			self.alts = alternatives.alt(prejacent, scales = scales, subst = subst)
 		else:
 			self.alts = alts
+
+		self.p = prejacent
 
 		# If there are free variables in the prejacent or the alternatives, they must be saturated with dummy values 
 		self.free_vars = set(self.p.free_vars)
@@ -146,11 +152,14 @@ class Exh(prop.Operator):
 
 	substitutable = False
 	
-	def __init__(self, child, alts = None, scales = options.scales, subst = options.sub, ii = options.ii_on):
+	def __init__(self, child, alts = None, scales = None, subst = None, ii = None):
 		self.e = Exhaust(child, alts, scales, subst)
 		super(Exh, self).__init__(None, child)
 
-		self.ii = ii
+		if ii is None:
+			self.ii = options.ii_on
+		else:
+			self.ii = ii
 		self.reinitialize()
 
 	def reinitialize(self):

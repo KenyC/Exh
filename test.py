@@ -200,6 +200,8 @@ assert(not quant_universe.equivalent(exh2, prejacent & (Ex > p1) & (Ex > p2)))
 
 # Dealing with free_vars
 Exh(p1, alts = [p1, p2])
+Ex > Exh(p1, alts = [p1, p2])
+
 
 # ### Automatic alternatives
 

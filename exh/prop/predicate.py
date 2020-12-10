@@ -115,6 +115,8 @@ class Pred(Formula):
 			print("""WARNING: {} variables were provided than the predicate {} depends on ; changing the arity of the predicate to {}. Universe objects will need to be recreated."""
 			      .format("More" if len(variables) > self.arity else "Less", self.name, len(variables)))
 			self.depends(*variables)
+			self.vars() # Recompute variable manager
+			self.free_vars = self.free_vars_
 			return self
 
 	def __eq__(self, other):
