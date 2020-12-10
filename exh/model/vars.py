@@ -13,9 +13,11 @@ class VarManager:
 	Indices: 0    1    2   3
 	
 	Attributes:
-		preds             -- a dictionary mapping predicate names to the variables they depend on
-		pred_to_vm_index  -- a dictionary mapping predicate names to their position in preds
-		names             -- a dictionary mapping predicate names to their indices
+		preds             -- a dictionary mapping predicate indices to the variables they depend on
+		pred_to_vm_index  -- a dictionary mapping predicate indices to a position (e.g. if a has index 1 and b index 4, a is mapped to position 0 and b to position 1)
+		names             -- a dictionary mapping predicate names to their indices 
+		memory            -- a list mapping predicate positions to how many bits are required to define this predicate
+		offset            -- a list mapping predicate positions to the bit index offset at which they are defined.
 	"""
 	def __init__(self, preds, names = dict()):
 		self.preds = preds 
