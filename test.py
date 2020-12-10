@@ -16,7 +16,7 @@ options.latex_display = False
 
 
 # %%
-header("FORMULA CONSTRUCTION")
+header("FORMULA CONSTRUCTION AND DISPLAY")
 
 
 Pred(4, name = "d") 
@@ -48,6 +48,12 @@ f5 = Ax > Ey > e("y", "x")
 # names for nameless predicates
 assert(Pred(7).display_aux(False) == "A7")
 assert(a.display_aux(False)       == "a")
+
+# Display test
+options.latex_display = True
+assert(f4.display() == r"$\forall x, d(x)$")
+options.latex_display = False
+assert(f4.display() == "\u2200 x, d(x)")
 
 # %%
 header("FORMULA METHODS")
@@ -273,6 +279,31 @@ assert(not fc_universe.consistent(fc_ii, Ex > p2 & p1))
 
 # %%
 
+header("EXTENSION : GENERALIZED QUANTIFIER")
 
+# Import and check import
+from exh.exts.gq import *
+Mx
+
+
+
+# Construct formula
+f = Mx > p1
+
+# Check if the options set for the main module also apply to the extension
+options.latex_display = True
+assert(f.display() == r"$\text{Most } x, p1(x)$")
+options.latex_display = False
+assert(f.display() == "Most  x, p1(x)")
+
+# Test formula construction
+Mx > p1
+Exactly(3, "x") > p1
+MoreThan(4, "x") > p1 | p2
+
+
+
+
+# %%
 
 

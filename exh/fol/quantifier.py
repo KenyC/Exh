@@ -27,9 +27,11 @@ class Quantifier(prop.Formula):
 			pass
 
 	def display_aux(self, latex):
-		return "{symb} {var}, {scope}".format(symb = self.__class__.latex_symbol if latex else self.__class__.plain_symbol,
-											 var   = self.qvar,
-											 scope = self.children[0].display_aux(latex)) 
+		return "{symb} {var}, {scope}".format(
+			symb = self.latex_symbol if latex else self.plain_symbol,
+			var   = self.qvar,
+			scope = self.children[0].display_aux(latex)
+		) 
 
 	def evaluate_aux(self, assignment, vm, variables = dict(), free_vars = list()):
 		return self.fun(np.stack([self.children[0].evaluate_aux(assignment, vm, 
