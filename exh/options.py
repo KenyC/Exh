@@ -9,3 +9,6 @@ ii_on = False
 
 # Whether automatic alternatives use subconstituents alternatives by default
 sub = True
+
+# The minimmal number of alternatives beyond which the "diagnose" method starts displaying them as bullet point list
+cutoff_inline_to_list = 5

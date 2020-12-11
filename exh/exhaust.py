@@ -106,25 +106,35 @@ class Exhaust:
 
 	def diagnose(self, display = jprint):
 		"""Diplay pertinent information regarding the results of the computation such as maximal sets, IE alternatives, II alternatives"""
-		def colon_sep_fs(fs):
+		inline_sep = "; "
+		list_sep   = "\n   - "
+
+		def sep_fs(fs):
 			str_fs = [str(f) for f in fs]
-			return "; ".join(str_fs) 
+			n_fs   = len(str_fs)
+
+			if n_fs > options.cutoff_inline_to_list:
+				return list_sep + list_sep.join(str_fs)
+			elif n_fs > 0:
+				return inline_sep.join(str_fs)
+			else:
+				return "nothing"
 
 		if self.excl:
 			display("Maximal Sets (excl):")
 			for excl in self.maximalExclSets:
-				display("{" + colon_sep_fs(self.extract_alts(excl)) + "}") 
+				display("{" + inline_sep.join(list(map(str, self.extract_alts(excl)))) + "}") 
 			display()
-			display("Innocently excludable: ", colon_sep_fs(self.innocently_excl) if self.innocently_excl else "nothing")
+			display("Innocently excludable: ", sep_fs(self.innocently_excl))
 
 		if self.incl:
 			display()
 			display()
 			display("Maximal Sets (incl):")
 			for incl in self.maximalInclSets:
-				display("{" + colon_sep_fs(self.extract_alts(incl)) + "}") 
+				display("{" + inline_sep.join(list(map(str, self.extract_alts(incl)))) + "}") 
 			display()
-			display("Innocently includable: ", colon_sep_fs(self.innocently_incl) if self.innocently_incl else "nothing")
+			display("Innocently includable: ", sep_fs(self.innocently_incl))
 		display()
 
 	@property
