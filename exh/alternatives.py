@@ -7,19 +7,57 @@ from itertools import product
 import copy
 
 from . import exhaust
-from . import options
-from exh.prop       import And, Or, Not, Formula, Pred
-from exh.fol        import Universal, Existential
+import exh.options  as options
+from exh.prop       import Pred, Or, And
 from exh.utils      import entails, remove_doubles
 
 
 
-constructors = {"And":         lambda pre: And(*pre.children),
-				"Or":          lambda pre: Or(*pre.children),
-				"Not":         lambda pre: Not(*pre.children),
-				"Exh":         lambda pre: exhaust.Exh(pre.children[0], alts = pre.alts),
-				"Existential": lambda pre: Existential(pre.qvar, pre.children[0]),
-				"Universal":   lambda pre: Universal(pre.qvar, pre.children[0])}
+"""
+The classes below find alternatives repalcing the root operator by a scalemate ; they preserve the overall structure of the formula
+"""
+
+class SimpleScales:
+	"""
+	This class uses the method of "alternative_to" to generate scalemates. It only looks at the type of the prejacent to find its scalemates.
+	As such, it cannot do content-based alternative subsitution (e.g. "more than 6" to "more than 7", since both have the same type)
+	But it is easy to define since it only demands its scales passed as simple list
+	"""
+
+	def __init__(self, scales):
+		"""
+		Arguments:
+		    - scales (list[set[type]]) : a list of scales (seen as sets of types)
+		"""
+		self.scales = scales
+
+
+	def alternatives_to(self, prejacents):
+		"""
+		From a list of prejacents assumed to have the same root operator Op, compute a set of alternatives replacing Op with scalemates
+
+		Arguments:
+		    - prejacents (list[Formula]) : a list of formulas
+		"""
+		if prejacents:
+			# Find the scalemates of the prejacent
+			example = prejacents[0] # take the first element to find the type of the formulas
+			rel_scale = set(type_f for s in self.scales if any(isinstance(example, type_f) for type_f in s) 
+			                       for type_f in s if not isinstance(example, type_f))
+
+			# we now need to include scalar replacements
+			scalar_alts = []
+			for scale_mate in rel_scale:
+				for alt_root_fixed in prejacents:
+					scalar_alts.append(scale_mate.alternative_to(alt_root_fixed))
+			return scalar_alts
+		else:
+			return []
+
+	def __repr__(self):
+		return "SimpleScales({scales})".format(self.scales.__repr__())
+
+
 
 
 ############################ MAXIMAL SETS ##############################################
@@ -92,7 +130,7 @@ def alt_aux(p, scales, subst):
 		return [p]
 
 	# in case the prejacent is an Exh, its alternative are either stipulated or already computed as "p.alts"
-	# So the returned set of alternatives is just {Exh(alt) | alt \in p.alts}
+	# So the returned set of alternatives is just {Exh(alt) | alt \in p.alts} (+alt themselved if subst is active)
 	if isinstance(p, exhaust.Exh):
 		all_alternatives = [p.prejacent]
 		all_alternatives.extend(p.alts)
@@ -104,6 +142,11 @@ def alt_aux(p, scales, subst):
 		                    for i, alt in enumerate(all_alternatives) if i != 0 # <--- trick: we don't recompute exhaustification of the prejacent
 			]
 		) 
+
+		# Somehow, sub-constituent alternative must not be disallowed to derive FC -- something to investigate
+		if subst and options.prejacent_alternative_to_exh:
+			exh_alternatives.extend(p.alts)
+
 		# exh_alternatives = [exhaust.Exh(alt, alts = all_alternatives[:i] + all_alternatives[i + 1:]) 
 		#                     for i, alt in enumerate(all_alternatives)]
 		return exh_alternatives
@@ -111,15 +154,12 @@ def alt_aux(p, scales, subst):
 	# GENERAL CASE:
 
 
-	# Find the scalemates of the prejacent
-	rel_scale = set(type_f for s in scales if any(isinstance(p, type_f) for type_f in s) 
-	                       for type_f in s if not isinstance(p, type_f))
 
 	# Recursively obtain the alternatives of the children nodes of the prejacent 
 	children_alternative = [alt_aux(child, scales, subst) for child in p.children]
 
 
-	root_fixed_alts = []
+	root_fixed_alts = [] # alternatives which have the same root operator as the prejacent (ie. a | (b & c) as an alternative to a | (b | c), preserves root or)
 	# For every choice of an alternative to a child (C1 x C2 x ... x Cn where Ci are the children's alternatives)
 	for t in product(*children_alternative):
 		# To avoid problems, the prejacent is copied
@@ -132,11 +172,17 @@ def alt_aux(p, scales, subst):
 	# "root_fixed_alts" now contains all alternatives to the current formula that keep the root node the same 
 	# e.g. p = a | (b & c) => root_fixed_alts = [a | b, a | c, a | (b | c), a | (b & c)]
 
-	# we now need to include scalar replacements
-	scalar_alts = []
-	for scale_mate in rel_scale:
-		for child in root_fixed_alts:
-			scalar_alts.append(constructors[scale_mate.__name__](child))
+
+	scalar_alts = scales.alternatives_to(root_fixed_alts)
+	# # Find the scalemates of the prejacent
+	# rel_scale = set(type_f for s in scales if any(isinstance(p, type_f) for type_f in s) 
+	#                        for type_f in s if not isinstance(p, type_f))
+
+	# # we now need to include scalar replacements
+	# scalar_alts = []
+	# for scale_mate in rel_scale:
+	# 	for alt_root_fixed in root_fixed_alts:
+	# 		scalar_alts.append(scale_mate.alternative_to(alt_root_fixed))
 
 	
 

@@ -1,5 +1,36 @@
+import numpy as np
 from . import options
 from . import exceptions
+
+class Domain:
+	"""
+	Represents some domain of quantification. 
+
+	Attributes:
+		- n (int) -- the size of the domain of quantification
+	"""
+	def __init__(self, size):
+		self._n = size
+
+	@property
+	def n(self):
+		return self._n
+	
+
+
+class DefaultDomain(Domain):
+	"""
+	A domain whose size is rigidly bound to "options.dom_quant"
+	"""
+	def __init__(self):
+		super(DefaultDomain, self).__init__(options.dom_quant)
+
+	@property
+	def n(self):
+		return options.dom_quant
+	
+default_domain = DefaultDomain()
+
 
 class VarManager:
 	"""
@@ -13,7 +44,7 @@ class VarManager:
 	Indices: 0    1    2   3
 	
 	Attributes:
-		preds             -- a dictionary mapping predicate indices to the variables they depend on
+		preds             -- a dictionary mapping predicate indices to the sizes of the domains they depend on
 		pred_to_vm_index  -- a dictionary mapping predicate indices to a position (e.g. if a has index 1 and b index 4, a is mapped to position 0 and b to position 1)
 		names             -- a dictionary mapping predicate names to their indices 
 		memory            -- a list mapping predicate positions to how many bits are required to define this predicate
@@ -36,7 +67,7 @@ class VarManager:
 		etc
 		"""
 
-		self.memory = [options.dom_quant ** ndeps  for _, ndeps in self.preds.items()]
+		self.memory = [grand_product(deps)  for _, deps in self.preds.items()]
 		
 		# position in memory of bits devoted to a parcitular predicate
 		self.offset = [0]
@@ -61,9 +92,25 @@ class VarManager:
 			raise exceptions.UnknownPred(pred, self)
 
 		pred_idx = self.pred_to_vm_index[pred]
-		offset = self.offset[pred_idx]
-		
-		return offset + sum(slot * (options.dom_quant ** i)  for i, slot in enumerate(value_slots))
+		offset   = self.offset[pred_idx]
+
+		# to_return  = offset
+		# multiplier = 1
+		# for slot, dep in zip(value_slots, deps):
+		# 	to_return  += slot * multiplier
+		# 	multiplier *= dep
+		return offset + np.ravel_multi_index(value_slots, deps, order = "F")
+
+
+def grand_product(list_numbers):
+	"""
+	Computes grand product of a list.
+	[1, 2, 3] -> 6 (= 2 * 3)
+	"""
+	to_return = 1
+	for nb in list_numbers:
+		to_return *= nb
+	return to_return
 	
 
 

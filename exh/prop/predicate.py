@@ -21,10 +21,17 @@ class Pred(Formula):
 	"""
 
 	no_parenthesis = True
+	last_index     = 100 # leaving some offset
 
-
-	def __init__(self, index, name = None, depends = None):
+	def __init__(self, index = None, name = None, depends = None, domains = None):
 		self.name = name
+
+		if index is None:
+			index = Pred.last_index
+		self.idx  = index
+
+		if self.idx >= Pred.last_index:
+			Pred.last_index = self.idx + 1
 
 		if depends is None:
 			depends = []
@@ -32,10 +39,9 @@ class Pred(Formula):
 			depends = [depends]
 		elif isinstance(depends, int):
 			depends = [depends]
+		self.depends(*depends, domains = domains)
 
-		self.depends(*depends)
 
-		self.idx = index
 		super(Pred, self).__init__()
 
 		self.free_vars = self.free_vars_
@@ -74,6 +80,7 @@ class Pred(Formula):
 
 			return assignment[:, vm.index(self.idx, value_slots)]
 		else:
+			# print("ezffez")
 			""" 
 			P(x, y, z)
 			The value of some of these variables are provided by assignment, others are left free
@@ -110,7 +117,7 @@ class Pred(Formula):
 
 	def __call__(self, *variables):
 		if len(variables) == self.arity:
-			return Pred(self.idx, self.name, variables)
+			return Pred(self.idx, self.name, variables, domains = self.domains)
 		else:
 			print("""WARNING: {} variables were provided than the predicate {} depends on ; changing the arity of the predicate to {}. Universe objects will need to be recreated."""
 			      .format("More" if len(variables) > self.arity else "Less", self.name, len(variables)))
@@ -123,21 +130,26 @@ class Pred(Formula):
 		return super(Pred, self).__eq__(other) and self.idx == other.idx
 
 	def vars(self):
+		size_domains = [domain.n for domain in self.domains]
 
 		if self.name is None:
-			self.vm = var.VarManager({self.idx: self.arity})
+			self.vm = var.VarManager({self.idx: size_domains})
 		else:
-			self.vm = var.VarManager({self.idx: self.arity}, names = {self.name: self.idx})
+			self.vm = var.VarManager({self.idx: size_domains}, names = {self.name: self.idx})
 
 		return self.vm
 
 
 
 
-	def depends(self, *depends_on):
+	def depends(self, *depends_on, domains = None):
 		if depends_on and isinstance(depends_on[0], int):
 			self.arity = depends_on[0]
 			self.deps = [var_name for _, var_name in zip(range(self.arity), utils.automatic_var_names())]
 		else:
 			self.arity = len(depends_on)
 			self.deps = depends_on
+
+		if domains is None:
+			domains = [var.default_domain for _ in self.deps]
+		self.domains = domains

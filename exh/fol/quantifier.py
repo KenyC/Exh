@@ -57,6 +57,10 @@ class Quantifier(prop.Formula):
 	def copy(self):
 		return self.__class__(self.qvar, self.scope)
 
+	@classmethod
+	def alternative_to(cls, other):
+		return cls(other.qvar, other.children[0])
+
 
 class Universal(Quantifier):
 	plain_symbol = "\u2200"
