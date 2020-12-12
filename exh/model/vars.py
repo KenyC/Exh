@@ -99,6 +99,7 @@ class VarManager:
 		# for slot, dep in zip(value_slots, deps):
 		# 	to_return  += slot * multiplier
 		# 	multiplier *= dep
+		print(value_slots, deps)
 		return offset + np.ravel_multi_index(value_slots, deps, order = "F")
 
 

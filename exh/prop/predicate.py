@@ -80,7 +80,6 @@ class Pred(Formula):
 
 			return assignment[:, vm.index(self.idx, value_slots)]
 		else:
-			# print("ezffez")
 			""" 
 			P(x, y, z)
 			The value of some of these variables are provided by assignment, others are left free

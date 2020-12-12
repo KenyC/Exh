@@ -9,11 +9,23 @@ from exh import *
 d = Pred(name = "d", depends = "x", domains = [Domain(5)])
 e = Pred(name = "e", depends = ["x", "y"], domains = [Domain(2), Domain(3)])
 
-d.evaluate_aux(
-	vm         = d.vars()
-	assignment = np.array([True, False, True])
-	d = [True, False, True, False, True])
+assert(d.evaluate_aux(
+	vm         = d.vars(),
+	assignment = np.array([[True, False, True, False, True]]),
+	variables  = {"x" : 4}
+))
+assert(not d.evaluate_aux(
+	vm         = d.vars(),
+	assignment = np.array([[True, False, True, False, True]]),
+	variables  = {"x" : 1}
+))
 
+	# d = [True, False, True, False, True])
+
+# %%
+d.evaluate(
+	d = [True, False, True, False, True]
+)
 
 
 
