@@ -7,7 +7,7 @@ sys.path.insert(1, '../')
 from exh import *
 
 d = Pred(name = "d", depends = "x", domains = [Domain(5)])
-e = Pred(name = "e", depends = ["x", "y"], domains = [Domain(2), Domain(3)])
+e = Pred(name = "e", depends = ["x", "y"], domains = [Domain(4), Domain(3)])
 
 assert(d.evaluate_aux(
 	vm         = d.vars(),
@@ -23,9 +23,17 @@ assert(not d.evaluate_aux(
 	# d = [True, False, True, False, True])
 
 # %%
-d.evaluate(
+assert((Ex_in_(D5) > d).evaluate(
 	d = [True, False, True, False, True]
-)
+))
+assert(not (Ex_in_(D4) > Ay_in_(D3) > e).evaluate(
+	e = [
+	[False, True, True],
+	[True, False, True],
+	[True, False, True],
+	[True, False, True]
+	]
+))
 
 
 

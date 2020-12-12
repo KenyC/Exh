@@ -30,7 +30,9 @@ class DefaultDomain(Domain):
 		return options.dom_quant
 	
 default_domain = DefaultDomain()
-
+D3 = Domain(3)
+D4 = Domain(4)
+D5 = Domain(5)
 
 class VarManager:
 	"""
@@ -99,8 +101,11 @@ class VarManager:
 		# for slot, dep in zip(value_slots, deps):
 		# 	to_return  += slot * multiplier
 		# 	multiplier *= dep
-		print(value_slots, deps)
-		return offset + np.ravel_multi_index(value_slots, deps, order = "F")
+		# print(value_slots, deps)
+		try:
+			return offset + (np.ravel_multi_index(value_slots, deps, order = "F") if deps else 0)
+		except ValueError:
+			raise Exception("Can't access {} in predicate with domain sizes {}".format(value_slots, deps))
 
 
 def grand_product(list_numbers):

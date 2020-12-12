@@ -84,6 +84,7 @@ class Pred(Formula):
 			P(x, y, z)
 			The value of some of these variables are provided by assignment, others are left free
 			"""
+			raise NotImplementedError
 			shape_output           = tuple(options.dom_quant for _ in free_vars)
 			vars_not_in_assignment = set(self.deps).difference(set(variables.keys()))
 
