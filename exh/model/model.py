@@ -121,12 +121,12 @@ class Universe:
 		vm_idx_to_deps = list(self.vm.preds.values())
 
 		for i, offset in enumerate(self.vm.offset):
-			ndeps = vm_idx_to_deps[i]
+			deps = vm_idx_to_deps[i]
 			
-			if ndeps != 0:
-			
-				for t in itertools.product(range(options.dom_quant), repeat = ndeps):
-					i_col = offset + sum(val * options.dom_quant ** j for j, val in enumerate(t))
+			if deps:
+				
+				for t in np.ndindex(*deps):
+					i_col = offset + np.ravel_multi_index(t, deps, order = "F")
 					names[i_col] = name_vars[i] + str_tuple(t)
 
 			else:

@@ -119,6 +119,14 @@ class Formula(IteratorType, Display, Evaluate): # Using sub-classing to spread c
 		self.vm.linearize()
 		return self.vm
 
+	@classmethod
+	def alternative_to(cls, other):
+		"""
+		Returns an formulat which is an alternative to other with the same children  ; meant to be overriden by subclasses
+		Example: Or.alternative_to(a & b) -> a | b
+		"""
+		raise Exception("alternative_to is not been implemented for class {}".format(cls.__name__))
+
 
 
 ############### OPERATORS ##############
@@ -182,6 +190,10 @@ class Operator(Formula):
 			return True
 		else:
 			return False
+
+	@classmethod
+	def alternative_to(cls, other):
+		return cls(*other.children)
 
 
 class And(Operator):

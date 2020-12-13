@@ -1,0 +1,8 @@
+for pyfile in *.py; do
+	echo -n $pyfile ...........
+	if python "$pyfile" >/dev/null; then
+		echo Pass!
+	else
+		echo ">>>>>>>>>>>>>>" FAIL ON $pyfile "<<<<<<<<<<<<<<<<<<<"
+	fi
+done

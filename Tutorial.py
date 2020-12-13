@@ -1,32 +1,34 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# # Tutorial 
-
-# ## Imports
-
 # %%
+"""
+# Tutorial 
+
+## Imports
+"""
+
 
 
 from exh import *
-from exh.utils import jprint # for fancy displays
-
-
-# ## Create formulas
-# 
-# Formulas are created from propositions (0-ary predictates) and predicates. Predicates have indices, such that predicates with the same index always have the same truth-value and predicates with different indices are logically independent. Here is a code to create a predicate with index 4.
+from exh.utils import jprint # for fancy displays in Jupyter Notebook
 
 # %%
+"""
+## Create formulas
+ 
+Formulas are created from propositions (0-ary predictates) and predicates.
+Both of these are created by class ``Pred``.
+Predicates have names, which govern how they are displayed.
+Predicates have indices : two predicates with the same index always have the same truth-value and two predicates with different indices are logically independent. Here is a code to create a predicate with index 4.
+"""
+
+d  = Pred(index = 4, name = "d") 
+d1 = Pred(7) # both "name" and "index" are optional, "name" makes prettier display with print and helps for evaluation of formulas
 
 
-d = Pred(4, name = "d") 
-d1 = Pred(7) # "name" is optional, "name" makes prettier display with print and helps for evaluation of formulas
-
-
-# By default, *exh.formula* creates 3 propositions a,b and c with indices 0, 1, 2 respectively. Once some propositions are defined, one can create complex formulas with & (and), | (or) and \~ (not).
 
 # %%
-
+"""
+By default, *exh.formula* creates 3 propositions a,b and c with indices 0, 1, 2 respectively. Once some propositions are defined, one can create complex formulas with & (and), | (or) and \~ (not).
+"""
 
 # f1: a or b
 f1 = a | b
@@ -40,37 +42,39 @@ jprint(f2)
 f3 = a | (~a & b)
 jprint(f3)
 
-
-# To turn a proposition into a n-ary predicate (for use in quantified formulas), one needs to specify the number of variables it depends on. Optionally, one may indicate which varaible the predicate depends on by default. That way, we don't need to specify the dependencies in formulas
-
 # %%
+"""
+To turn a proposition into a n-ary predicate (for use in quantified formulas), one needs to specify the number of variables it depends on. Optionally, one may indicate which variable or variables the predicate depends on by default. That way, we don't need to specify the dependencies in formulas
+"""
 
 
 d.depends(1) # Making a unary predicate
 
 # Alternatively, making a unary predicate with a default variable name
 d.depends("x")
-
-
-# Once this is done, one can use the following syntax to create a universal statement.  A("x") creates a quantifier over "x", which combines with ">" and a formula to form a quantified formula.
+# For predicates with more than one variable we would write:
+# d.depends("x", "y") # Default named variables
+# d.depends(2)        # Anonymous variables
 
 # %%
-
+"""
+Once this is done, one can use the following syntax to create a universal statement.  A("x") creates a quantifier over "x", which combines with ">" and a formula to form a quantified formula.
+"""
 
 # f4: for all x, d(x)
 f4 = A("x") > d
 jprint(f4)
-# If we want to mark explicitly or override the varaibles that d depends on, we write
+# If we want to mark explicitly or override the varaibles that d depends on, we write:
 # f4 = A("x") > d("x")
 
-
-# Two simplifying tips:
-#  - Existential and universal quantifiers over x, y, z are created by default under the names Ax, Ey, etc.
-#  - If v is propositional variable, v("x") returns v and sets v to depend on x
-# 
-# Most straigthforwardly, one can create a quantified formula as follows:
-
 # %%
+"""
+Two simplifying tips:
+ - Existential and universal quantifiers over x, y, z are created by default under the names Ax, Ey, etc.
+ - If v is propositional variable, v("x") returns v and sets v to depend on x
+
+Most straigthforwardly, one can create a quantified formula as follows:
+"""
 
 
 # f5: there exists y, d(y)
@@ -78,33 +82,31 @@ f5 = Ey > d1("y") # a warning is displayed, because we hadn't specified that "d1
 jprint(f5) # displays as A7 because we haven't given d1 a name
 
 
-# ## Evaluate formulas
-# The simplest way to evaluate a formula uses the method *evaluate* and the predicates' names.
-
 # %%
-
+"""
+## Evaluate formulas
+The simplest way to evaluate a formula uses the method *evaluate* and the predicates' names.
+"""
 
 # Evaluate f1 with a True and b True.
 value = f1.evaluate(a = True, b = False)
 jprint("'{}' is {}".format(f1, value))
 
-
-# In quantified formulas, one needs to provide as many values for a predicate as there are individuals in the domain. The number of individuals in the domain is set in *options.py* and defaults to 3. The three values are provided as a list.
-
 # %%
-
+"""
+In quantified formulas, one needs to provide as many values for a predicate as there are individuals in the domain. The number of individuals in the domain is set in the module *exh.model.options* and defaults to 3. The three values are provided as a list.
+"""
 
 # Evaluate f4 with d(0) True, d(1) True and d(2) True
 value = f4.evaluate(d = [True, True, True])
 jprint(f4, " is ", value)
 
-
-# One may sometimes want to evaluate a formula against all possible assignments of truth-values. To do that, one constructs a *Universe* object. This object constructs all possible assignments of truth-values to propositions and predicates within a given set of formulas, passed as an argument to the universe constructor. The *truth_table* method displays the evaluated formula in a fancy chart.
-
 # %%
-
-
-from exh.worlds import Universe
+"""
+One may sometimes want to evaluate a formula against all possible assignments of truth-values. To do so, one constructs a *Universe* object.
+This object constructs all possible assignments of truth-values to propositions and predicates within a given set of formulas, passed as an argument to the universe constructor.
+ The *truth_table* method displays the evaluated formula in a fancy chart.
+"""
 
 # A Universe can be created from formulas ; 
 # the constructor extracts all the independent predicates and propositions and creates all possible logical possibilities
@@ -113,11 +115,10 @@ prop_universe = Universe(fs = [a, b, c])
 print(prop_universe.evaluate(f1, f2, f3))
 prop_universe.truth_table(f1, f2, f3)
 
-
-# Universes come with methods to check standard logical relations: entailment, equivalence and consistency
-
 # %%
-
+"""
+Universes come with methods to check standard logical relations: entailment, equivalence and consistency
+"""
 
 # The first three propositions entail that "not a" and "b", contradicting the fourth. 
 value = prop_universe.consistent(a | b,
@@ -137,23 +138,26 @@ value = prop_universe.equivalent(~a | ~c,
                                 ~(a & c) )
 print(value)
 
+# %%
+"""
+## Exhaustification
 
-# ## Exhaustification
+Exhaustification can be computed against a set of stipulated alternatives.
 
-# Exhaustification can be computed against a set of stipulated alternatives.
-# 
-# **NB:** Innocent exclusion is computed upon creation of the object, expect slowdowns if number of worlds is big.
+**NB:** Innocent exclusion is computed upon creation of the object, slowdowns will happen at this stage if the number of worlds is large.
+"""
+
+
+e = Exh(Ex > d, alts = [Ax > d])      # Number of worlds: 2^3 = 8 
+e1 = Exh(a | b, alts = [a, b, a & b]) # Number of worlds: 2^2 = 2
 
 # %%
-
-
-e = Exh(Ex > d, alts = [Ax > d])
-e1 = Exh(a | b, alts = [a, b, a & b])
-
-
-# The program does not give you a representation of what *h* is, but one can confirm the result in a couple of ways: first, the method *diagnose* gives us the innocently excludable alternatives. Second, like any formula, we can evaluate *e* and check that it behaves like "some but not all". Third, we can create a *Universe* object and check for equivalence with en explicit "some but not all" formula.
-
-# %%
+"""
+The program does not give you a representation of what the exhaustified meaning is,
+but we can confirm the result in a couple of ways: first, the method *diagnose* lists the innocently excludable alternatives. 
+Second, like any formula, we can evaluate *e* and check that it behaves like "some but not all", our predicted meaning. 
+Third, we can create a *Universe* object and check for equivalence with en explicit "some but not all" formula.
+"""
 
 
 e.diagnose()
@@ -173,14 +177,15 @@ print(
     ))
 
 
-# Below is a more involved example with more alternatives:
-
 # %%
+"""
+Below is a more involved example with more alternatives:
+"""
 
 
 # constructing new predicates and immediately indicating dependency in x
-p1 = Pred(5, name = "p1", depends = ["x"]) 
-p2 = Pred(6, name = "p2", depends = ["x"])
+p1 = Pred(name = "p1", depends = ["x"]) 
+p2 = Pred(name = "p2", depends = ["x"])
 
 prejacent = Ax > p1 | p2
 
@@ -203,21 +208,21 @@ print(universe.entails(exh2, Ex > p1 & ~p2))
 print(universe.entails(exh2, Ex > p2 & ~p1))
 # Two implicatures: 1) that someone did only p1, 2) that someone did only p2
 
-
-# ### Automatic alternatives
-
-# When not specified, the alternatives to the prejacent are computed in a Katzirian manner: all alternatives are considered that can be obtained from the prejacent by sub-constituent and scalar substitutions. Which alternatives were obtained by this process can be probed after the object is constructed.
-
 # %%
+"""
+### Automatic alternatives
+
+When not specified, the alternatives to the prejacent are computed in a Sauerlandian manner: all alternatives are considered that can be obtained from the prejacent by sub-constituent and scalar substitutions. Which alternatives were obtained by this process can be probed after the object is constructed.
+"""
 
 
 h2 = Exh (a | b | c)
 jprint("Computed alternatives", h2.alts)
 
-
-# It is possible to specify the scales, to decide whether to allow substitution by sub-consituent.
-
 # %%
+"""
+It is possible to specify the scales and to decide whether to allow substitution by sub-consituent.
+"""
 
 
 h3 = Exh(a | b | c, subst = False) # no replacement by sub-constituent allowed (only scalar alternatives)
@@ -226,7 +231,8 @@ jprint(h3.alts)
 h4 = Exh(Ex > p1 | p2, scales = [{Or, And}]) # no "some", "all" scale
 jprint(h4.alts)
 # NB: to avoid unbound variables, the quantifier's scope is not considered a sub-consituent of the quantifier
-
+# NB2: The "scales" argument is a list of sets of types. You can find out the type of any formula by running:
+# print(formula_of_unknown_type.__class__.__name__)  
 
 # %%
 
@@ -234,28 +240,28 @@ jprint(h4.alts)
 h3.diagnose()
 h4.diagnose()
 
-
-# ## Advanced usage
-
-# ### Formulas with multiple quantifiers
-
-# One can create multiply quantified sentences ; the number of worlds grows exponentially. One predicate that depends on two variables will give rise to 9 independent variables ; we get 2^9 = 512 worlds.
-
 # %%
+"""
+## Advanced usage
+
+### Formulas with multiple quantifiers
+
+One can create multiply quantified sentences ; the number of worlds grows exponentially. One predicate that depends on two variables will give rise to 9 independent variables ; we get 2^9 = 512 worlds.
+"""
 
 
 p3 = Pred(13, name = "p3")
-prejacent = Ex > Ay > p3("x", "y")
+prejacent = Ex > Ay > p3("x", "y") # Number of worlds 2^(3^2) = 512 (still quite reasonable)
 
 e = Exh(prejacent, alts = [Ay > Ex > p3, Ax > Ey > p3, Ey > Ax > p3])
 e.diagnose()
 
-
-# ### Recursive exhaustification
-# 
-# The object *Exh* is just like any other formula. It can be embedded, yielding recursive exhaustification. Here is for instance a replication of free choice:
-
 # %%
+"""
+### Recursive exhaustification
+
+The object *Exh* is just like any other formula. It can be embedded, yielding recursive exhaustification. Here is for instance a replication of free choice:
+"""
 
 
 # For fancy html display
@@ -309,16 +315,17 @@ print(fc_universe.entails(fc_2, Ex > p1 & ~p2)) # We don't have strong FC
 print("Is the sentence compatible with a requirement to do both p1 and p2?")
 print(fc_universe.consistent(fc_2, Ax > p1 & p2))
 
-# One may wonder by sub-constituent replacement, "Ex, p1(x)" is not an alternative to "Exh(Ex, p1(x) or p2(x))"
-# If this were so, note that free choice wouldn't be derived.
-# "exh" is set to not be removable by sub-constituent replacement (you can modify this in *options.py*)
-
-
-# ### Innocent inclusion
-
-# *Exh* can also compute innocent inclusion. 
-
 # %%
+"""
+One may wonder why by sub-constituent replacement, "Ex, p1(x)" is not an alternative to "Exh(Ex, p1(x) or p2(x))"
+If this were so, note that free choice wouldn't be derived.
+"exh" is set to not be removable by sub-constituent replacement (you can modify this in *options.py*)
+
+
+### Innocent inclusion
+
+*Exh* can also compute innocent inclusion. 
+"""
 
 
 # Strengthening to conjunction, when scalar alternatives are absent
@@ -335,7 +342,6 @@ print("Allowed to do p2 not p1:", fc_universe.entails(fc_ii, Ex > p2 & ~p1))
 print("Allowed to do both:", fc_universe.consistent(fc_ii, Ex > p2 & p1))
 
 
-# %%
 
 
 

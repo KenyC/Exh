@@ -4,7 +4,7 @@ import numpy as np
 import exh.alternatives as alternatives
 import exh.model        as model
 import exh.prop         as prop
-
+import exh.scales       as scale
 
 from exh.utils import jprint
 import exh.options as options
@@ -26,10 +26,24 @@ class Exhaust:
 	"""
 	
 	
-	def __init__(self, prejacent, alts = None, scales = None, subst = None):
+	def __init__(self, prejacent, alts = None, scales = None, subst = None, extra_alts = []):
+		"""
+		Arguments
+			- prejacent (Formula)       -- the prejacent
+			- alts      (list[Formula]) -- stipulated alternatives. If None, alternatives are computed automatically
+			- scales                    -- the scales used to compute automatic alternatives
+			- subst     (bool)          -- whether subconstituent alternatives should be used
+			- extra_alts(list[Formula]) -- if alternatives are computed automatically, add to the already computed alternatives some stipulated ones.
+		"""
 		# Defining default options dynamically so that users can change options on the fly
 		if scales is None:
-			scales = options.scales
+			if isinstance(options.scales, list):
+				scales = scale.SimpleScales(options.scales)
+			else:
+				scales = options.scales
+		elif isinstance(scales, list):
+			scales = scale.SimpleScales(scales)
+
 		if subst is None:
 			subst = options.sub
 
@@ -37,6 +51,7 @@ class Exhaust:
 			self.alts = alternatives.alt(prejacent, scales = scales, subst = subst)
 		else:
 			self.alts = alts
+		self.alts += extra_alts
 
 		self.p = prejacent
 
@@ -162,8 +177,8 @@ class Exh(prop.Operator):
 
 	substitutable = False
 	
-	def __init__(self, child, alts = None, scales = None, subst = None, ii = None):
-		self.e = Exhaust(child, alts, scales, subst)
+	def __init__(self, child, alts = None, scales = None, subst = None, ii = None, extra_alts = []):
+		self.e = Exhaust(child, alts, scales, subst, extra_alts)
 		super(Exh, self).__init__(None, child)
 
 		if ii is None:
@@ -216,6 +231,10 @@ class Exh(prop.Operator):
 
 	def copy(self):
 		return Exh(self.prejacent, alts = self.alts)
+
+	@classmethod
+	def alternative_to(cls, other):
+		return cls(other.children[0], alts = other.alts)
 
 
 

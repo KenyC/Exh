@@ -1,7 +1,8 @@
 import numpy as np
 from collections import defaultdict
 
-import exh.model.options as options
+from exh.model import vars as var
+from exh.model import options
 import exh.prop as prop
 
 class Quantifier(prop.Formula):
@@ -11,13 +12,14 @@ class Quantifier(prop.Formula):
 	Attributes:
 		symbol -- display symbol (obsolete)
 		qvar   -- string name of the individual variable of quantification
+		domain -- something specifying the number of individuals in the domain
 	"""
 
 	substitutable = False
 	plain_symbol = "Q"
 	latex_symbol = "Q"
 
-	def __init__(self, quant_var, scope):
+	def __init__(self, quant_var, scope, domain = None):
 		super(Quantifier, self).__init__(scope)
 		self.qvar = quant_var
 
@@ -25,6 +27,10 @@ class Quantifier(prop.Formula):
 			self.free_vars.remove(self.qvar)
 		except ValueError:
 			pass
+
+		if domain is None:
+			domain = var.default_domain
+		self.domain = domain
 
 	def display_aux(self, latex):
 		return "{symb} {var}, {scope}".format(
@@ -37,7 +43,7 @@ class Quantifier(prop.Formula):
 		return self.fun(np.stack([self.children[0].evaluate_aux(assignment, vm, 
 		                                                        dict(variables, **{self.qvar: i}),
 		                                                        free_vars) 
-		                         for i in range(options.dom_quant)],
+		                         for i in range(self.domain.n)],
 		                         axis = 0))
 
 	def fun(self, results):
@@ -56,6 +62,10 @@ class Quantifier(prop.Formula):
 
 	def copy(self):
 		return self.__class__(self.qvar, self.scope)
+
+	@classmethod
+	def alternative_to(cls, other):
+		return cls(other.qvar, other.children[0], domain = other.domain)
 
 
 class Universal(Quantifier):
@@ -112,9 +122,10 @@ class C:
 
 def quantifier_cons(constructor):
 	""" Returns a C class from a formula constructor """
-	def f(var):
-		return C(lambda formula: constructor(var, formula))
+	def f(var, **kwargs):
+		return C(lambda formula: constructor(var, formula, **kwargs))
 
 	return f
+
 
 

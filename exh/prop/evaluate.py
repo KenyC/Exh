@@ -46,9 +46,8 @@ class Evaluate:
 				else:
 					continue
 
-				deps = vm.preds[idx]
-
-				for t in itertools.product(range(options.dom_quant), repeat = deps):
+				size_domains = vm.preds[idx]
+				for t in np.ndindex(*size_domains):
 					i = vm.index(idx, t)
 					assignment[i] = utils.get(val, t)
 
