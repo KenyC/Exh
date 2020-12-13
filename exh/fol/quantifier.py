@@ -65,7 +65,7 @@ class Quantifier(prop.Formula):
 
 	@classmethod
 	def alternative_to(cls, other):
-		return cls(other.qvar, other.children[0])
+		return cls(other.qvar, other.children[0], domain = other.domain)
 
 
 class Universal(Quantifier):
@@ -122,8 +122,8 @@ class C:
 
 def quantifier_cons(constructor):
 	""" Returns a C class from a formula constructor """
-	def f(var):
-		return C(lambda formula: constructor(var, formula))
+	def f(var, **kwargs):
+		return C(lambda formula: constructor(var, formula, **kwargs))
 
 	return f
 

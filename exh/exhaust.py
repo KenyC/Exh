@@ -4,7 +4,7 @@ import numpy as np
 import exh.alternatives as alternatives
 import exh.model        as model
 import exh.prop         as prop
-
+import exh.scales       as scale
 
 from exh.utils import jprint
 import exh.options as options
@@ -37,9 +37,12 @@ class Exhaust:
 		"""
 		# Defining default options dynamically so that users can change options on the fly
 		if scales is None:
-			scales = alternatives.SimpleScales(options.scales)
+			if isinstance(options.scales, list):
+				scales = scale.SimpleScales(options.scales)
+			else:
+				scales = options.scales
 		elif isinstance(scales, list):
-			scales = alternatives.SimpleScales(scales)
+			scales = scale.SimpleScales(scales)
 
 		if subst is None:
 			subst = options.sub
@@ -174,8 +177,8 @@ class Exh(prop.Operator):
 
 	substitutable = False
 	
-	def __init__(self, child, alts = None, scales = None, subst = None, ii = None, extract_alts = []):
-		self.e = Exhaust(child, alts, scales, subst, extract_alts)
+	def __init__(self, child, alts = None, scales = None, subst = None, ii = None, extra_alts = []):
+		self.e = Exhaust(child, alts, scales, subst, extra_alts)
 		super(Exh, self).__init__(None, child)
 
 		if ii is None:

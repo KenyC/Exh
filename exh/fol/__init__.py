@@ -17,19 +17,19 @@ Ez = E("z")
 
 
 def Ax_in_(domain):
-	return C(lambda formula: Universal("x", formula, domain))
+	return A("x", domain = domain)
 
 def Ay_in_(domain):
-	return C(lambda formula: Universal("y", formula, domain))
+	return A("y", domain = domain)
 
 def Az_in_(domain):
-	return C(lambda formula: Universal("z", formula, domain))
+	return A("z", domain = domain)
 
 def Ex_in_(domain):
-	return C(lambda formula: Existential("x", formula, domain))
+	return E("x", domain = domain)
 
 def Ey_in_(domain):
-	return C(lambda formula: Existential("y", formula, domain))
+	return E("y", domain = domain)
 
 def Ez_in_(domain):
-	return C(lambda formula: Existential("z", formula, domain))
+	return E("z", domain = domain)

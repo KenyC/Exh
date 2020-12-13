@@ -6,8 +6,8 @@ sys.path.insert(1, '../')
 # %%
 from exh import *
 
-d = Pred(name = "d", depends = "x", domains = [Domain(5)])
-e = Pred(name = "e", depends = ["x", "y"], domains = [Domain(4), Domain(3)])
+d = Pred(name = "d", depends = "x", domains = [D5])
+e = Pred(name = "e", depends = ["x", "y"], domains = [Domain(4), D3])
 
 assert(d.evaluate_aux(
 	vm         = d.vars(),
