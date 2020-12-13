@@ -21,13 +21,15 @@ Predicates have indices : two predicates with the same index always have the sam
 """
 
 d  = Pred(index = 4, name = "d") 
-d1 = Pred(7) # both "name" and "index" are optional, "name" makes prettier display with print and helps for evaluation of formulas
+# both "name" and "index" are optional, "name" makes prettier display with print and helps for evaluation of formulas
+d1 = Pred(index = 7) 
+d2 = Pred(name  = "d2") 
 
 
 
 # %%
 """
-By default, *exh.formula* creates 3 propositions a,b and c with indices 0, 1, 2 respectively. Once some propositions are defined, one can create complex formulas with & (and), | (or) and \~ (not).
+By default, *exh.formula* creates 3 propositions a,b and c with indices 0, 1, 2 respectively. Once some propositions are defined, one can create complex formulas with & (and), | (or) and \\~ (not).
 """
 
 # f1: a or b
@@ -62,10 +64,10 @@ Once this is done, one can use the following syntax to create a universal statem
 """
 
 # f4: for all x, d(x)
-f4 = A("x") > d
+f4 = A("x") > d("x")
 jprint(f4)
-# If we want to mark explicitly or override the varaibles that d depends on, we write:
-# f4 = A("x") > d("x")
+# We don't have to mark explicitly the varaibles that d depends on, if "d" has default name for its variable
+f4 = A("x") > d
 
 # %%
 """

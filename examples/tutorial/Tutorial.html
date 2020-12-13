@@ -13112,7 +13112,9 @@ Predicates have indices : two predicates with the same index always have the sam
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">d</span>  <span class="o">=</span> <span class="n">Pred</span><span class="p">(</span><span class="n">index</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;d&quot;</span><span class="p">)</span> 
-<span class="n">d1</span> <span class="o">=</span> <span class="n">Pred</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span> <span class="c1"># both &quot;name&quot; and &quot;index&quot; are optional, &quot;name&quot; makes prettier display with print and helps for evaluation of formulas</span>
+<span class="c1"># both &quot;name&quot; and &quot;index&quot; are optional, &quot;name&quot; makes prettier display with print and helps for evaluation of formulas</span>
+<span class="n">d1</span> <span class="o">=</span> <span class="n">Pred</span><span class="p">(</span><span class="n">index</span> <span class="o">=</span> <span class="mi">7</span><span class="p">)</span> 
+<span class="n">d2</span> <span class="o">=</span> <span class="n">Pred</span><span class="p">(</span><span class="n">name</span>  <span class="o">=</span> <span class="s2">&quot;d2&quot;</span><span class="p">)</span> 
 </pre></div>
 
     </div>
@@ -13123,7 +13125,7 @@ Predicates have indices : two predicates with the same index always have the sam
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>By default, <em>exh.formula</em> creates 3 propositions a,b and c with indices 0, 1, 2 respectively. Once some propositions are defined, one can create complex formulas with &amp; (and), | (or) and ~ (not).</p>
+<p>By default, <em>exh.formula</em> creates 3 propositions a,b and c with indices 0, 1, 2 respectively. Once some propositions are defined, one can create complex formulas with &amp; (and), | (or) and \~ (not).</p>
 
 </div>
 </div>
@@ -13235,10 +13237,10 @@ $a \lor (\neg[a] \land b)$
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># f4: for all x, d(x)</span>
-<span class="n">f4</span> <span class="o">=</span> <span class="n">A</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">d</span>
+<span class="n">f4</span> <span class="o">=</span> <span class="n">A</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">d</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
 <span class="n">jprint</span><span class="p">(</span><span class="n">f4</span><span class="p">)</span>
-<span class="c1"># If we want to mark explicitly or override the varaibles that d depends on, we write:</span>
-<span class="c1"># f4 = A(&quot;x&quot;) &gt; d(&quot;x&quot;)</span>
+<span class="c1"># We don&#39;t have to mark explicitly the varaibles that d depends on, if &quot;d&quot; has default name for its variable</span>
+<span class="n">f4</span> <span class="o">=</span> <span class="n">A</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">d</span>
 </pre></div>
 
     </div>
