@@ -208,6 +208,8 @@ class Exh(prop.Operator):
 	
 		return np.min(np.stack(values), axis = 0)
 
+	def unpack(self):
+		return self.prejacent & prop.And(*self.evalSet)
 
 	@property
 	def alts(self):

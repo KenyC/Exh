@@ -11,6 +11,8 @@ exh/__init__.py
 exh/alternatives.py
 exh/exhaust.py
 exh/options.py
+exh/scales.py
+exh/exts/gq/__init__.py
 exh/fol/__init__.py
 exh/fol/quantifier.py
 exh/model/__init__.py

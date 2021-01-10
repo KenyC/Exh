@@ -4,5 +4,6 @@ for pyfile in *.py; do
 		echo Pass!
 	else
 		echo ">>>>>>>>>>>>>>" FAIL ON $pyfile "<<<<<<<<<<<<<<<<<<<"
+		exit 1
 	fi
 done

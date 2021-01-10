@@ -9,6 +9,8 @@
 
 from exh import *
 from exh.utils import jprint # for fancy displays in Jupyter Notebook
+import exh # This import is just to access the version
+print(exh.__version__)
 
 # %%
 """
@@ -150,26 +152,36 @@ Exhaustification can be computed against a set of stipulated alternatives.
 """
 
 
-e = Exh(Ex > d, alts = [Ax > d])      # Number of worlds: 2^3 = 8 
+e  = Exh(Ex > d, alts = [Ax > d])      # Number of worlds: 2^3 = 8 
 e1 = Exh(a | b, alts = [a, b, a & b]) # Number of worlds: 2^2 = 2
 
 # %%
 """
-The program does not give you a representation of what the exhaustified meaning is,
-but we can confirm the result in a couple of ways: first, the method *diagnose* lists the innocently excludable alternatives. 
-Second, like any formula, we can evaluate *e* and check that it behaves like "some but not all", our predicted meaning. 
-Third, we can create a *Universe* object and check for equivalence with en explicit "some but not all" formula.
+To see the results of the computations, you can use a couple of methods:
+    1. the method ``diagnose()`` from the Exhaust object lists the innocently excludable alternatives (along with the maximal sets).
+    2. alternatively, the method ``unpack()`` creates an equivalent formula in the form "prejacent and not alternative and not alternative' ..."
+    3. like any formula, we can evaluate *e* and check that it behaves like "some but not all", our predicted meaning.
+
+**Caveat:** Neither the formula given by ``unpack()`` or the sets of alternatives in ``diagnose()`` are not simplified.
+Sometimes, multiple logically equivalent alternatives will be displayed. On complex examples, comparing the result obtained to a predicted result may be more helpful (i.e. method 3 above).
 """
 
-
+# Method 1
 e.diagnose()
 e1.diagnose()
 
+# Method 2
+jprint(e.unpack())
+jprint(e1.unpack())
+
+# Method 3
 quant_universe = Universe(fs = [e])
 print()
+# Display truth table of "e" and compare it to truth table of "some but not all"
 quant_universe.truth_table(e, (Ex > d) & ~(Ax > d))
 
 
+# Or more directly check for equivalence
 print()
 print("Is e equivalent to 'some but not all'?")
 print(

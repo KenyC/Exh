@@ -2,7 +2,7 @@
 <html>
 <head><meta charset="utf-8" />
 
-<title>Tutorial</title>
+<title>Tutorial_out</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -13604,8 +13604,8 @@ Sometimes, multiple logically equivalent alternatives will be displayed. On comp
 <span class="n">e1</span><span class="o">.</span><span class="n">diagnose</span><span class="p">()</span>
 
 <span class="c1"># Method 2</span>
-<span class="n">jprint</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">unpack</span><span class="p">())</span>
-<span class="n">jprint</span><span class="p">(</span><span class="n">e1</span><span class="o">.</span><span class="n">unpack</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">unpack</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">e1</span><span class="o">.</span><span class="n">unpack</span><span class="p">())</span>
 
 <span class="c1"># Method 3</span>
 <span class="n">quant_universe</span> <span class="o">=</span> <span class="n">Universe</span><span class="p">(</span><span class="n">fs</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="p">])</span>
@@ -13769,32 +13769,10 @@ Innocently excludable:  $a \land b$
     <div class="prompt"></div>
 
 
-
-<div class="output_html rendered_html output_subarea ">
-$(\exists x, d(x)) \land \land[\neg[\forall x, d(x)]]$
-</div>
-
-</div>
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-$(a \lor b) \land \land[\neg[a \land b]]$
-</div>
-
-</div>
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>
+<pre>$(\exists x, d(x)) \land \land[\neg[\forall x, d(x)]]$
+$(a \lor b) \land \land[\neg[a \land b]]$
+
 </pre>
 </div>
 </div>
