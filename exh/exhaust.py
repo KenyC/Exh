@@ -37,12 +37,10 @@ class Exhaust:
 		"""
 		# Defining default options dynamically so that users can change options on the fly
 		if scales is None:
-			if isinstance(options.scales, list):
-				scales = scale.SimpleScales(options.scales)
-			else:
-				scales = options.scales
+			scales = options.scales
 		elif isinstance(scales, list):
 			scales = scale.SimpleScales(scales)
+		self.scales = scales
 
 		if subst is None:
 			subst = options.sub

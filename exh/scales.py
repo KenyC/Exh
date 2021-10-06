@@ -1,5 +1,5 @@
 """
-The classes below find alternatives repalcing the root operator by a scalemate ; they preserve the overall structure of the formula
+The classes below find alternatives replacing the root operator by a scalemate ; they preserve the overall structure of the formula
 """
 
 class Scales:

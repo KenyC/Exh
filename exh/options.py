@@ -1,8 +1,9 @@
 from exh.prop    import Or, And
 from exh.fol     import Existential, Universal
+from exh.scales  import SimpleScales
 
 # Default scalar scales
-scales = [{Or, And}, {Existential, Universal}]
+scales = SimpleScales([{Or, And}, {Existential, Universal}])
 
 # Whether Exh computes innocent inclusion by default
 ii_on = False
